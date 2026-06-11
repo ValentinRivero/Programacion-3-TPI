@@ -8,13 +8,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import com.error404.mundialtpi.ui.components.InfoRow
+import com.error404.mundialtpi.ui.components.TeamDetailItem
+import com.error404.mundialtpi.utils.formatDateTime
 import com.error404.mundialtpi.viewmodel.MundialViewModel
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,59 +139,5 @@ fun PantallaDetalle(partidoId: String, viewModel: MundialViewModel, onBack: () -
                 }
             }
         }
-    }
-}
-
-@Composable
-fun TeamDetailItem(name: String, flagUrl: String, modifier: Modifier = Modifier, isEnd: Boolean = false) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = if (isEnd) Alignment.End else Alignment.Start
-    ) {
-        AsyncImage(
-            model = flagUrl,
-            contentDescription = "Bandera de $name",
-            modifier = Modifier
-                .size(64.dp)
-                .padding(bottom = 8.dp)
-        )
-        Text(
-            text = name,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            textAlign = if (isEnd) TextAlign.End else TextAlign.Start,
-            maxLines = 2
-        )
-    }
-}
-
-@Composable
-fun InfoRow(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.outline
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-fun formatDateTime(rawDate: String): Pair<String, String> {
-    return try {
-        val instant = Instant.parse(rawDate)
-        val dateTime = instant.atZone(ZoneId.systemDefault())
-        val datePart = dateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        val timePart = dateTime.format(DateTimeFormatter.ofPattern("HH:mm"))
-        Pair(datePart, timePart)
-    } catch (e: Exception) {
-        Pair(rawDate, "--:--")
     }
 }
