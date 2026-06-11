@@ -5,12 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.commityarezar.mundialtpi.models.DTOPartidosDetalle
 import com.commityarezar.mundialtpi.models.DTOPartidosLista
 import com.commityarezar.mundialtpi.repository.MundialRepository
 import kotlinx.coroutines.launch
 
 class MundialViewModel(private val repository: MundialRepository) : ViewModel() {
     var partidosLista by mutableStateOf<List<DTOPartidosLista>>(emptyList())
+        private set
+
+    // 1. Agregamos un estado para el partido seleccionado (puede ser null al principio)
+    var partidoSeleccionado by mutableStateOf<DTOPartidosDetalle?>(null)
+        private set
 
     var isLoading by mutableStateOf(false)
         private set
@@ -18,11 +24,26 @@ class MundialViewModel(private val repository: MundialRepository) : ViewModel() 
     fun cargarPartidos() {
         viewModelScope.launch {
             isLoading = true
-
             try {
                 partidosLista = repository.fetchPartidosLista()
             } catch (e: Exception) { /* error */}
             isLoading = false
         }
+    }
+
+    // 2. Agregamos la función para cargar un partido por su ID
+    fun cargarPartidoDetalle(id: String) {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                partidoSeleccionado = repository.fetchPartidosDetalle(id)
+            } catch (e: Exception) { /* error */}
+            isLoading = false
+        }
+    }
+
+    // 3. (Opcional pero recomendado) Limpiar el estado al salir de la pantalla
+    fun limpiarDetalle() {
+        partidoSeleccionado = null
     }
 }

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DTOPartidosDetalle(
-    val id: Int,
+    val id: String,
     val equipo1: String,
     val equipo2: String,
     val grupo: String,
