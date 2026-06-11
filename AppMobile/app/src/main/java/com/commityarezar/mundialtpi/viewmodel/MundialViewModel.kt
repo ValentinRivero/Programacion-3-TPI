@@ -21,6 +21,12 @@ class MundialViewModel(private val repository: MundialRepository) : ViewModel() 
     var isLoading by mutableStateOf(false)
         private set
 
+    var isDarkMode by mutableStateOf(false)
+
+    fun toggleTheme() {
+        isDarkMode = !isDarkMode
+    }
+
     fun cargarPartidos() {
         viewModelScope.launch {
             isLoading = true

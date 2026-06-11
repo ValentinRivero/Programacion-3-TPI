@@ -21,7 +21,11 @@ fun AppNavigation(viewModel: MundialViewModel) {
         }
         composable<DestinoDetalle> { backStackEntry ->
             val ruta = backStackEntry.toRoute<DestinoDetalle>()
-            PantallaDetalle(partidoId = ruta.partidoId, viewModel = viewModel)
+            PantallaDetalle(
+                partidoId = ruta.partidoId,
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

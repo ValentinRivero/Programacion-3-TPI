@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         val viewModel = MundialViewModel(repository)
 
         setContent {
-            MundialTPITheme {
+            MundialTPITheme(darkTheme = viewModel.isDarkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
