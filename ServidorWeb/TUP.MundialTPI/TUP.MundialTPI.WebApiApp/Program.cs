@@ -62,7 +62,7 @@ namespace TUP.MundialTPI.WebApiApp
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseAuthorization();
 

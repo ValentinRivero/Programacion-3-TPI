@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.error404.mundialtpi.ui.components.InfoRow
 import com.error404.mundialtpi.ui.components.TeamDetailItem
 import com.error404.mundialtpi.utils.formatDateTime
@@ -16,7 +17,7 @@ import com.error404.mundialtpi.viewmodel.MundialViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaDetalle(partidoId: String, viewModel: MundialViewModel, onBack: () -> Unit) {
+fun PantallaDetalle(partidoId: Int, viewModel: MundialViewModel, navController: NavController, onBack: () -> Unit) {
 
     // Cargamos el detalle al entrar
     LaunchedEffect(partidoId) {
@@ -98,7 +99,7 @@ fun PantallaDetalle(partidoId: String, viewModel: MundialViewModel, onBack: () -
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
 
-                            InfoRow(label = "Estadio", value = partido.estadio)
+                            InfoRow(label = "Estadio", value = partido.nombreEstadio)
                             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
 
                             val (date, time) = formatDateTime(partido.fecha)
@@ -106,7 +107,7 @@ fun PantallaDetalle(partidoId: String, viewModel: MundialViewModel, onBack: () -
                             InfoRow(label = "Hora", value = "$time hs")
 
                             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
-                            InfoRow(label = "Grupo", value = partido.grupo)
+                            InfoRow(label = "Fase", value = partido.fase) // Acá ponemos Fase
 
                             Spacer(modifier = Modifier.height(24.dp))
 
@@ -122,17 +123,27 @@ fun PantallaDetalle(partidoId: String, viewModel: MundialViewModel, onBack: () -
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        "Entradas desde",
+                                        "Disponibilidad",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
-                                        "$${partido.precio}",
+                                        partido.infoEntradas,
                                         style = MaterialTheme.typography.headlineSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                 }
+                            }
+                            
+                            Spacer(modifier = Modifier.height(24.dp))
+                            
+                            Button(
+                                onClick = { navController.navigate(com.error404.mundialtpi.models.DestinoCompra(partidoId)) },
+                                modifier = Modifier.fillMaxWidth(),
+                                contentPadding = PaddingValues(16.dp)
+                            ) {
+                                Text("Comprar Entrada", style = MaterialTheme.typography.titleMedium)
                             }
                         }
                     }

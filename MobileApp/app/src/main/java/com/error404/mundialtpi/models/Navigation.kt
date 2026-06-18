@@ -6,4 +6,16 @@ import kotlinx.serialization.Serializable
 object DestinoLista
 
 @Serializable
-data class DestinoDetalle(val partidoId: String)
+data class DestinoDetalle(val partidoId: Int)
+
+@Serializable
+object DestinoLogin
+
+@Serializable
+object DestinoRegistro
+
+@Serializable
+data class DestinoCompra(val partidoId: Int)
+
+@Serializable
+object DestinoMisTickets

@@ -61,7 +61,7 @@ fun MatchCard(partido: DTOPartidosLista, onClick: () -> Unit) {
                 val formattedDate = "$date - $time hs"
 
                 Text(
-                    text = "Grupo ${partido.grupo}",
+                    text = partido.fase,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

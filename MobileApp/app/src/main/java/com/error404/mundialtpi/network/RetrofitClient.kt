@@ -9,7 +9,7 @@ object RetrofitClient {
     private val json = Json { ignoreUnknownKeys = true }
     val api: MundialAPIService by lazy {
         Retrofit.Builder()
-            .baseUrl("https://6a2a4956b687a7d5cbc372ce.mockapi.io/api/test/")
+            .baseUrl("http://10.0.2.2:5021/api/")
             .addConverterFactory(
                 json.asConverterFactory(
                     "application/json".toMediaType()
