@@ -10,6 +10,7 @@ import com.error404.mundialtpi.models.DTOPartidosDetalle
 import com.error404.mundialtpi.models.DTOPartidosLista
 import com.error404.mundialtpi.repository.MundialRepository
 import kotlinx.coroutines.launch
+import android.util.Log
 
 class MundialViewModel(private val repository: MundialRepository) : ViewModel() {
     var partidosLista by mutableStateOf<List<DTOPartidosLista>>(emptyList())
@@ -33,13 +34,15 @@ class MundialViewModel(private val repository: MundialRepository) : ViewModel() 
             isLoading = true
             try {
                 partidosLista = repository.fetchPartidosLista()
-            } catch (e: Exception) { /* error */}
+            } catch (e: Exception) {
+                Log.e("ERROR_API", "Falló Retrofit: ${e.message}", e)
+            }
             isLoading = false
         }
     }
 
     //Agregamos la función para cargar un partido por su ID
-    fun cargarPartidoDetalle(id: String) {
+    fun cargarPartidoDetalle(id: Int) {
         viewModelScope.launch {
             isLoading = true
             try {

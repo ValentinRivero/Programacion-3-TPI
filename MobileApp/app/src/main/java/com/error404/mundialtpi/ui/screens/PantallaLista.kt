@@ -17,10 +17,23 @@ import androidx.navigation.NavController
 import com.error404.mundialtpi.models.DestinoDetalle
 import com.error404.mundialtpi.ui.components.MatchCard
 import com.error404.mundialtpi.viewmodel.MundialViewModel
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import com.error404.mundialtpi.models.DestinoLogin
+import com.error404.mundialtpi.viewmodel.AuthViewModel
+import androidx.compose.material.icons.filled.ConfirmationNumber
+import com.error404.mundialtpi.models.DestinoMisTickets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaLista(viewModel: MundialViewModel, navController: NavController) {
+fun PantallaLista(
+    viewModel: MundialViewModel,
+    authViewModel: AuthViewModel,
+    navController: NavController
+) {
     LaunchedEffect(Unit) {
         viewModel.cargarPartidos()
     }
@@ -28,7 +41,17 @@ fun PantallaLista(viewModel: MundialViewModel, navController: NavController) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Mundial TPI", fontWeight = FontWeight.Bold) },
+                title = { Text("Comprar Entradas", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.navigate(DestinoMisTickets)
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.ConfirmationNumber,
+                            contentDescription = "Mis Entradas"
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = { viewModel.toggleTheme() }) {
                         Icon(
@@ -36,12 +59,46 @@ fun PantallaLista(viewModel: MundialViewModel, navController: NavController) {
                             contentDescription = "Cambiar modo"
                         )
                     }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                }
             )
+        },
+        bottomBar = {
+            BottomAppBar(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Hola, ${authViewModel.nombreUsuario}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Button(
+                        onClick = {
+                            authViewModel.logout()
+                            viewModel.limpiarDetalle()
+
+                            navController.navigate(DestinoLogin) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Cerrar sesión",
+                            modifier = Modifier.padding(end = 8.dp).size(18.dp)
+                        )
+                        Text("Salir")
+                    }
+                }
+            }
         }
     ) { paddingValues ->
         Box(

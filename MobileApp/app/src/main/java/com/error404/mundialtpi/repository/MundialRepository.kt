@@ -9,7 +9,7 @@ class MundialRepository(private val api: MundialAPIService) {
         return api.getPartidosLista()
     }
 
-    suspend fun fetchPartidosDetalle(id: String): DTOPartidosDetalle {
+    suspend fun fetchPartidosDetalle(id: Int): DTOPartidosDetalle {
         return api.getPartidosDetalle(id)
     }
 }
