@@ -6,16 +6,12 @@ plugins {
 
 android {
     namespace = "com.error404.mundialtpi"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.error404.mundialtpi"
-        minSdk = 33
-        targetSdk = 36
+        minSdk = 26
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 

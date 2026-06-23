@@ -44,10 +44,10 @@ namespace TUP.MundialTPI.DatosEF
             );
 
             modelBuilder.Entity<Estadio>().HasData(
-                new Estadio { Id = 1, Nombre = "Rose Bowl", Ciudad = "Pasadena", Pais = "Estados Unidos", Capacidad = 92542, ImagenUrl = "https://images.unsplash.com/photo-1518605368461-1e1e108d1f2d?q=80&w=1000&auto=format&fit=crop" },
-                new Estadio { Id = 2, Nombre = "MetLife Stadium", Ciudad = "East Rutherford", Pais = "Estados Unidos", Capacidad = 82500, ImagenUrl = "https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1000&auto=format&fit=crop" },
-                new Estadio { Id = 3, Nombre = "Estadio Azteca", Ciudad = "Ciudad de México", Pais = "México", Capacidad = 87523, ImagenUrl = "https://images.unsplash.com/photo-1522778147829-047360bdc7f6?q=80&w=1000&auto=format&fit=crop" },
-                new Estadio { Id = 4, Nombre = "BMO Field", Ciudad = "Toronto", Pais = "Canadá", Capacidad = 30000, ImagenUrl = "https://images.unsplash.com/photo-1628891435222-065922031e0b?q=80&w=1000&auto=format&fit=crop" }
+                new Estadio { Id = 1, Nombre = "Rose Bowl", Ciudad = "Pasadena", Pais = "Estados Unidos", Capacidad = 92542, ImagenUrl = "https://media.telemundo51.com/2025/03/argentinabrasil.jpg?quality=85&strip=all&resize=1200%2C675" },
+                new Estadio { Id = 2, Nombre = "MetLife Stadium", Ciudad = "East Rutherford", Pais = "Estados Unidos", Capacidad = 82500, ImagenUrl = "https://www.directvsports.com/__export/1720258446592/sites/dsports/img/2024/07/06/20240706_063405942_732035_0_1533.jpg_554688468.jpg" },
+                new Estadio { Id = 3, Nombre = "Estadio Azteca", Ciudad = "Ciudad de México", Pais = "México", Capacidad = 87523, ImagenUrl = "https://media.tycsports.com/files/2023/11/10/644251/mexico-se-enfrenta-ante-la-visita-alemania-por-la-fecha-1-del-grupo-f_862x485_wmk.webp" },
+                new Estadio { Id = 4, Nombre = "BMO Field", Ciudad = "Toronto", Pais = "Canadá", Capacidad = 30000, ImagenUrl = "https://www.americanfootballinternational.com/wp-content/uploads/ITA-CAN.jpg" }
             );
 
             modelBuilder.Entity<Partido>().HasData(
