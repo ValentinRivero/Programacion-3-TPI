@@ -7,13 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TUP.Mundial.Entidades\TUP.MundialTPI.Entidades.csproj" />
     <ProjectReference Include="..\TUP.MundialTPI.DatosEF\TUP.MundialTPI.DatosEF.csproj" />
+    <ProjectReference Include="..\TUP.MundialTPI.Entidades\TUP.MundialTPI.Entidades.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
   </ItemGroup>
 
 </Project>

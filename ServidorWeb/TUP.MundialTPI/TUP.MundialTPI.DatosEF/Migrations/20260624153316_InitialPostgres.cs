@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TUP.MundialTPI.DatosEF.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialPostgres : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,13 +18,13 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                 name: "Estadios",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
-                    Ciudad = table.Column<string>(type: "TEXT", nullable: false),
-                    Pais = table.Column<string>(type: "TEXT", nullable: false),
-                    Capacidad = table.Column<int>(type: "INTEGER", nullable: false),
-                    ImagenUrl = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Ciudad = table.Column<string>(type: "text", nullable: false),
+                    Pais = table.Column<string>(type: "text", nullable: false),
+                    Capacidad = table.Column<int>(type: "integer", nullable: false),
+                    ImagenUrl = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,12 +35,12 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                 name: "Usuarios",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
-                    Rol = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Rol = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,14 +51,14 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                 name: "Partidos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    EquipoLocal = table.Column<string>(type: "TEXT", nullable: false),
-                    EquipoVisitante = table.Column<string>(type: "TEXT", nullable: false),
-                    FechaHora = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    EstadioId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Fase = table.Column<string>(type: "TEXT", nullable: false),
-                    EntradasDisponibles = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EquipoLocal = table.Column<string>(type: "text", nullable: false),
+                    EquipoVisitante = table.Column<string>(type: "text", nullable: false),
+                    FechaHora = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EstadioId = table.Column<int>(type: "integer", nullable: false),
+                    Fase = table.Column<string>(type: "text", nullable: false),
+                    EntradasDisponibles = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -74,13 +75,13 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                 name: "Tickets",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PartidoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    UsuarioId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TipoEntrada = table.Column<string>(type: "TEXT", nullable: false),
-                    Precio = table.Column<decimal>(type: "TEXT", nullable: false),
-                    FechaCompra = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PartidoId = table.Column<int>(type: "integer", nullable: false),
+                    UsuarioId = table.Column<int>(type: "integer", nullable: false),
+                    TipoEntrada = table.Column<string>(type: "text", nullable: false),
+                    Precio = table.Column<decimal>(type: "numeric", nullable: false),
+                    FechaCompra = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -104,10 +105,10 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                 columns: new[] { "Id", "Capacidad", "Ciudad", "ImagenUrl", "Nombre", "Pais" },
                 values: new object[,]
                 {
-                    { 1, 92542, "Pasadena", "https://images.unsplash.com/photo-1518605368461-1e1e108d1f2d?q=80&w=1000&auto=format&fit=crop", "Rose Bowl", "Estados Unidos" },
-                    { 2, 82500, "East Rutherford", "https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1000&auto=format&fit=crop", "MetLife Stadium", "Estados Unidos" },
-                    { 3, 87523, "Ciudad de México", "https://images.unsplash.com/photo-1522778147829-047360bdc7f6?q=80&w=1000&auto=format&fit=crop", "Estadio Azteca", "México" },
-                    { 4, 30000, "Toronto", "https://images.unsplash.com/photo-1628891435222-065922031e0b?q=80&w=1000&auto=format&fit=crop", "BMO Field", "Canadá" }
+                    { 1, 92542, "Pasadena", "https://media.telemundo51.com/2025/03/argentinabrasil.jpg?quality=85&strip=all&resize=1200%2C675", "Rose Bowl", "Estados Unidos" },
+                    { 2, 82500, "East Rutherford", "https://www.directvsports.com/__export/1720258446592/sites/dsports/img/2024/07/06/20240706_063405942_732035_0_1533.jpg_554688468.jpg", "MetLife Stadium", "Estados Unidos" },
+                    { 3, 87523, "Ciudad de México", "https://media.tycsports.com/files/2023/11/10/644251/mexico-se-enfrenta-ante-la-visita-alemania-por-la-fecha-1-del-grupo-f_862x485_wmk.webp", "Estadio Azteca", "México" },
+                    { 4, 30000, "Toronto", "https://www.americanfootballinternational.com/wp-content/uploads/ITA-CAN.jpg", "BMO Field", "Canadá" }
                 });
 
             migrationBuilder.InsertData(

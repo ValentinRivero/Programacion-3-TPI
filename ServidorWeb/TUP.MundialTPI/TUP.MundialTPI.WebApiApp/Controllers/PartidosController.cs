@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using TUP.Mundial.Negocio;
+using TUP.MundialTPI.Negocio;
+using TUP.MundialTPI.Negocio.Interfaces;
 
 namespace TUP.MundialTPI.WebApiApp.Controllers
 {

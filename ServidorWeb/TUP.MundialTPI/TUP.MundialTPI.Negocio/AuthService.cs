@@ -4,19 +4,14 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using TUP.Mundial.Entidades;
+using TUP.MundialTPI.Entidades;
 using TUP.MundialTPI.DatosEF;
 using BCrypt.Net;
+using TUP.MundialTPI.Negocio.Interfaces;
+using TUP.MundialTPI.Entidades.DTOs;
 
-namespace TUP.Mundial.Negocio
+namespace TUP.MundialTPI.Negocio
 {
-    public interface IAuthService
-    {
-        Task<Usuario> RegisterAsync(RegisterDto dto);
-        Task<string> LoginAsync(LoginDto dto);
-        Task<Usuario?> GetUserByEmailAsync(string email);
-        Task<List<Usuario>> GetAllUsuariosAsync();
-    }
 
     public class AuthService : IAuthService
     {
@@ -29,7 +24,7 @@ namespace TUP.Mundial.Negocio
             _config = config;
         }
 
-        public async Task<Usuario> RegisterAsync(RegisterDto dto)
+        public async Task<Usuario> RegisterAsync(RegisterDTO dto)
         {
             if (await _context.Usuarios.AnyAsync(u => u.Email == dto.Email))
                 throw new Exception("El email ya está registrado");
@@ -47,7 +42,7 @@ namespace TUP.Mundial.Negocio
             return user;
         }
 
-        public async Task<string> LoginAsync(LoginDto dto)
+        public async Task<string> LoginAsync(LoginDTO dto)
         {
             var user = await _context.Usuarios.SingleOrDefaultAsync(u => u.Email == dto.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))

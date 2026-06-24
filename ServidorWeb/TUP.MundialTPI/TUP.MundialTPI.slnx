@@ -1,6 +1,6 @@
 <Solution>
-  <Project Path="TUP.Mundial.Entidades/TUP.MundialTPI.Entidades.csproj" />
-  <Project Path="TUP.Mundial.Negocio/TUP.MundialTPI.Negocio.csproj" />
   <Project Path="TUP.MundialTPI.DatosEF/TUP.MundialTPI.DatosEF.csproj" />
+  <Project Path="TUP.MundialTPI.Entidades/TUP.MundialTPI.Entidades.csproj" />
+  <Project Path="TUP.MundialTPI.Negocio/TUP.MundialTPI.Negocio.csproj" />
   <Project Path="TUP.MundialTPI.WebApiApp/TUP.MundialTPI.WebApiApp.csproj" />
 </Solution>

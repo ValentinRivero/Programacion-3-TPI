@@ -1,9 +1,10 @@
 using TUP.MundialTPI.DatosEF;
 using Microsoft.EntityFrameworkCore;
-using TUP.Mundial.Negocio;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TUP.MundialTPI.Negocio;
+using TUP.MundialTPI.Negocio.Interfaces;
 
 namespace TUP.MundialTPI.WebApiApp
 {
@@ -15,8 +16,8 @@ namespace TUP.MundialTPI.WebApiApp
 
             // Add services to the container.
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-            
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
             builder.Services.AddScoped<IPartidoService, PartidoService>();
             builder.Services.AddScoped<ITicketService, TicketService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
