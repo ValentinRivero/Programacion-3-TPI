@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TUP.MundialTPI.DatosEF;
 
 #nullable disable
@@ -15,32 +16,38 @@ namespace TUP.MundialTPI.DatosEF.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Estadio", b =>
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Estadio", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Capacidad")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Ciudad")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("ImagenUrl")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Pais")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -85,32 +92,34 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Partido", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Partido", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("EntradasDisponibles")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("EquipoLocal")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("EquipoVisitante")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("EstadioId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Fase")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("FechaHora")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -161,27 +170,29 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Ticket", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Ticket", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("FechaCompra")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PartidoId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Precio")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("TipoEntrada")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -192,27 +203,29 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                     b.ToTable("Tickets");
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Usuario", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Usuario", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Rol")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -232,9 +245,9 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Partido", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Partido", b =>
                 {
-                    b.HasOne("TUP.Mundial.Entidades.Estadio", "Estadio")
+                    b.HasOne("TUP.MundialTPI.Entidades.Estadio", "Estadio")
                         .WithMany()
                         .HasForeignKey("EstadioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -243,15 +256,15 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                     b.Navigation("Estadio");
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Ticket", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Ticket", b =>
                 {
-                    b.HasOne("TUP.Mundial.Entidades.Partido", "Partido")
+                    b.HasOne("TUP.MundialTPI.Entidades.Partido", "Partido")
                         .WithMany()
                         .HasForeignKey("PartidoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TUP.Mundial.Entidades.Usuario", "Usuario")
+                    b.HasOne("TUP.MundialTPI.Entidades.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)

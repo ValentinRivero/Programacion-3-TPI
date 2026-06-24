@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TUP.Mundial.Entidades;
-using TUP.Mundial.Negocio;
+using TUP.MundialTPI.Entidades;
+using TUP.MundialTPI.Negocio;
+using TUP.MundialTPI.Negocio.Interfaces;
+using TUP.MundialTPI.Entidades.DTOs;
 
 namespace TUP.MundialTPI.WebApiApp.Controllers
 {
@@ -31,7 +33,7 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         }
 
         [HttpPost("partidos")]
-        public async Task<IActionResult> CrearPartido([FromBody] PartidoDto dto)
+        public async Task<IActionResult> CrearPartido([FromBody] PartidoDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -52,7 +54,7 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         }
 
         [HttpPut("partidos/{id}")]
-        public async Task<IActionResult> EditarPartido(int id, [FromBody] PartidoDto dto)
+        public async Task<IActionResult> EditarPartido(int id, [FromBody] PartidoDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using TUP.Mundial.Entidades;
-using TUP.Mundial.Negocio;
+using TUP.MundialTPI.Entidades;
+using TUP.MundialTPI.Negocio;
+using TUP.MundialTPI.Negocio.Interfaces;
+using TUP.MundialTPI.Entidades.DTOs;
 
 namespace TUP.MundialTPI.WebApiApp.Controllers
 {
@@ -16,7 +18,7 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
             try
             {
@@ -30,7 +32,7 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
             try
             {

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TUP.MundialTPI.DatosEF;
 
 #nullable disable
@@ -11,39 +12,45 @@ using TUP.MundialTPI.DatosEF;
 namespace TUP.MundialTPI.DatosEF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260615055214_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260624153316_InitialPostgres")]
+    partial class InitialPostgres
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Estadio", b =>
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Estadio", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Capacidad")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Ciudad")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("ImagenUrl")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Pais")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -55,7 +62,7 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                             Id = 1,
                             Capacidad = 92542,
                             Ciudad = "Pasadena",
-                            ImagenUrl = "https://images.unsplash.com/photo-1518605368461-1e1e108d1f2d?q=80&w=1000&auto=format&fit=crop",
+                            ImagenUrl = "https://media.telemundo51.com/2025/03/argentinabrasil.jpg?quality=85&strip=all&resize=1200%2C675",
                             Nombre = "Rose Bowl",
                             Pais = "Estados Unidos"
                         },
@@ -64,7 +71,7 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                             Id = 2,
                             Capacidad = 82500,
                             Ciudad = "East Rutherford",
-                            ImagenUrl = "https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1000&auto=format&fit=crop",
+                            ImagenUrl = "https://www.directvsports.com/__export/1720258446592/sites/dsports/img/2024/07/06/20240706_063405942_732035_0_1533.jpg_554688468.jpg",
                             Nombre = "MetLife Stadium",
                             Pais = "Estados Unidos"
                         },
@@ -73,7 +80,7 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                             Id = 3,
                             Capacidad = 87523,
                             Ciudad = "Ciudad de México",
-                            ImagenUrl = "https://images.unsplash.com/photo-1522778147829-047360bdc7f6?q=80&w=1000&auto=format&fit=crop",
+                            ImagenUrl = "https://media.tycsports.com/files/2023/11/10/644251/mexico-se-enfrenta-ante-la-visita-alemania-por-la-fecha-1-del-grupo-f_862x485_wmk.webp",
                             Nombre = "Estadio Azteca",
                             Pais = "México"
                         },
@@ -82,38 +89,40 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                             Id = 4,
                             Capacidad = 30000,
                             Ciudad = "Toronto",
-                            ImagenUrl = "https://images.unsplash.com/photo-1628891435222-065922031e0b?q=80&w=1000&auto=format&fit=crop",
+                            ImagenUrl = "https://www.americanfootballinternational.com/wp-content/uploads/ITA-CAN.jpg",
                             Nombre = "BMO Field",
                             Pais = "Canadá"
                         });
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Partido", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Partido", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("EntradasDisponibles")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("EquipoLocal")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("EquipoVisitante")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("EstadioId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Fase")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("FechaHora")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -164,27 +173,29 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Ticket", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Ticket", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("FechaCompra")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PartidoId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Precio")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("TipoEntrada")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -195,27 +206,29 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                     b.ToTable("Tickets");
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Usuario", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Usuario", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Rol")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -235,9 +248,9 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Partido", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Partido", b =>
                 {
-                    b.HasOne("TUP.Mundial.Entidades.Estadio", "Estadio")
+                    b.HasOne("TUP.MundialTPI.Entidades.Estadio", "Estadio")
                         .WithMany()
                         .HasForeignKey("EstadioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -246,15 +259,15 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                     b.Navigation("Estadio");
                 });
 
-            modelBuilder.Entity("TUP.Mundial.Entidades.Ticket", b =>
+            modelBuilder.Entity("TUP.MundialTPI.Entidades.Ticket", b =>
                 {
-                    b.HasOne("TUP.Mundial.Entidades.Partido", "Partido")
+                    b.HasOne("TUP.MundialTPI.Entidades.Partido", "Partido")
                         .WithMany()
                         .HasForeignKey("PartidoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TUP.Mundial.Entidades.Usuario", "Usuario")
+                    b.HasOne("TUP.MundialTPI.Entidades.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)

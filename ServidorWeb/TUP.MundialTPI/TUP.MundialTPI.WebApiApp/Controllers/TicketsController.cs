@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using TUP.Mundial.Entidades;
-using TUP.Mundial.Negocio;
+using TUP.MundialTPI.Entidades;
+using TUP.MundialTPI.Negocio;
+using TUP.MundialTPI.Negocio.Interfaces;
+using TUP.MundialTPI.Entidades.DTOs;
 
 namespace TUP.MundialTPI.WebApiApp.Controllers
 {
@@ -19,7 +21,7 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Comprar([FromBody] ComprarTicketDto dto)
+        public async Task<IActionResult> Comprar([FromBody] ComprarTicketDTO dto)
         {
             try
             {

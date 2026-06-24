@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using TUP.Mundial.Entidades;
+using TUP.MundialTPI.Entidades;
 
 namespace TUP.MundialTPI.DatosEF
 {
