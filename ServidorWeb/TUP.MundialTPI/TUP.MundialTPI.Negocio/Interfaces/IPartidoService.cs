@@ -8,7 +8,7 @@ namespace TUP.MundialTPI.Negocio.Interfaces
 {
     public interface IPartidoService
     {
-        Task<List<Partido>> GetAllAsync();
+        Task<IEnumerable<Partido>> GetAllAsync(string? equipo = null, string? fase = null, int pagina = 1, int cantidad = 15);
         Task<Partido?> GetByIdAsync(int id);
         Task<Partido> CrearAsync(PartidoDTO dto);
         Task<Partido> EditarAsync(int id, PartidoDTO dto);

@@ -27,7 +27,7 @@ namespace TUP.MundialTPI.Negocio
                 PartidoId = dto.PartidoId,
                 UsuarioId = usuarioId,
                 TipoEntrada = dto.TipoEntrada,
-                Precio = 250m * dto.Cantidad, // Precio simulado según el PRD
+                Precio = 250m * dto.Cantidad,
                 FechaCompra = DateTime.UtcNow
             };
 
@@ -43,13 +43,13 @@ namespace TUP.MundialTPI.Negocio
                 .Include(t => t.Usuario)
                 .ToListAsync();
         }
-
-        public async Task<List<Ticket>> GetMisTicketsAsync(int usuarioId)
+        public async Task<IEnumerable<Ticket>> GetMisTicketsAsync(int usuarioId)
         {
             return await _context.Tickets
                 .Include(t => t.Partido)
-                .ThenInclude(p => p.Estadio)
+                    .ThenInclude(p => p.Estadio)
                 .Where(t => t.UsuarioId == usuarioId)
+                .OrderByDescending(t => t.Id)
                 .ToListAsync();
         }
     }

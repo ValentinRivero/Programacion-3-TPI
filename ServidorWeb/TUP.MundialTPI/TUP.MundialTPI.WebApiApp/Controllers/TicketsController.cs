@@ -40,33 +40,17 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
 
         [Authorize]
         [HttpGet("mis-tickets")]
-        public async Task<IActionResult> GetMisTickets()
+        public async Task<ActionResult> GetMisTickets()
         {
-            try
-            {
-                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized("Token inválido.");
-                
-                int usuarioId = int.Parse(userIdClaim);
-                var tickets = await _ticketService.GetMisTicketsAsync(usuarioId);
-                
-                var resultado = tickets.Select(t => new
-                {
-                    t.Id,
-                    Partido = $"{t.Partido.EquipoLocal} vs {t.Partido.EquipoVisitante}",
-                    Estadio = $"{t.Partido.Estadio.Nombre}, {t.Partido.Estadio.Ciudad}",
-                    FechaPartido = t.Partido.FechaHora,
-                    t.TipoEntrada,
-                    t.Precio,
-                    t.FechaCompra
-                });
+            var claimId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-                return Ok(resultado);
-            }
-            catch (Exception ex)
+            if (claimId == null)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(new { mensaje = "Token inválido o sin ID de usuario." });
             }
+
+            var tickets = await _ticketService.GetMisTicketsAsync(int.Parse(claimId));
+            return Ok(tickets);
         }
     }
 }

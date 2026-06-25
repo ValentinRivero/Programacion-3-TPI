@@ -48,6 +48,9 @@ namespace TUP.MundialTPI.Negocio
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 throw new Exception("Credenciales inválidas");
 
+            if (!user.Activo)
+                throw new Exception("Tu cuenta ha sido suspendida por un administrador.");
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

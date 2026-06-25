@@ -14,9 +14,31 @@ namespace TUP.MundialTPI.Negocio
         private readonly AppDbContext _context;
         public PartidoService(AppDbContext context) => _context = context;
 
-        public async Task<List<Partido>> GetAllAsync()
+        public async Task<IEnumerable<Partido>> GetAllAsync(string? equipo, string? fase, int pagina = 1, int cantidad = 15)
         {
-            return await _context.Partidos.Include(p => p.Estadio).ToListAsync();
+            var query = _context.Partidos
+        .Include(p => p.Estadio)
+        .Where(p => p.Estado == "Activo")
+        .AsQueryable();
+
+            if (!string.IsNullOrEmpty(fase))
+            {
+                query = query.Where(p => p.Fase.ToLower().Contains(fase.ToLower()));
+            }
+
+            if (!string.IsNullOrEmpty(equipo))
+            {
+                query = query.Where(p => p.EquipoLocal.ToLower().Contains(equipo.ToLower()) ||
+                                         p.EquipoVisitante.ToLower().Contains(equipo.ToLower()));
+            }
+
+            var partidosPaginados = await query
+                .OrderBy(p => p.FechaHora)
+                .Skip((pagina - 1) * cantidad)
+                .Take(cantidad)
+                .ToListAsync();
+
+            return partidosPaginados;
         }
 
         public async Task<Partido?> GetByIdAsync(int id)

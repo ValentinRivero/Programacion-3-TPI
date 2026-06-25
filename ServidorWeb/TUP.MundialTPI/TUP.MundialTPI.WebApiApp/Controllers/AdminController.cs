@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TUP.MundialTPI.DatosEF;
 using TUP.MundialTPI.Entidades;
+using TUP.MundialTPI.Entidades.DTOs;
 using TUP.MundialTPI.Negocio;
 using TUP.MundialTPI.Negocio.Interfaces;
-using TUP.MundialTPI.Entidades.DTOs;
 
 namespace TUP.MundialTPI.WebApiApp.Controllers
 {
@@ -15,12 +17,32 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         private readonly IPartidoService _partidoService;
         private readonly IAuthService _authService;
         private readonly ITicketService _ticketService;
+        private readonly AppDbContext _context;
 
-        public AdminController(IPartidoService partidoService, IAuthService authService, ITicketService ticketService)
+        public AdminController(IPartidoService partidoService, IAuthService authService, ITicketService ticketService, AppDbContext context)
         {
             _partidoService = partidoService;
             _authService = authService;
             _ticketService = ticketService;
+            _context = context;
+        }
+
+        // --- DASHBOARD ---
+        [HttpGet("dashboard-stats")]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            var totalUsuarios = await _context.Usuarios.CountAsync();
+            var totalTickets = await _context.Tickets.CountAsync();
+            var totalRecaudado = await _context.Tickets.SumAsync(t => (decimal?)t.Precio) ?? 0;
+            var partidosAgotados = await _context.Partidos.CountAsync(p => p.EntradasDisponibles == 0);
+
+            return Ok(new
+            {
+                Usuarios = totalUsuarios,
+                Tickets = totalTickets,
+                Recaudacion = totalRecaudado,
+                Agotados = partidosAgotados
+            });
         }
 
         // --- PARTIDOS ---
@@ -131,5 +153,33 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
 
             return Ok(resultado);
         }
+
+        // SUSPENDER / ACTIVAR USUARIO
+        [HttpPut("usuarios/{id}/toggle-estado")]
+        public async Task<IActionResult> ToggleUsuarioEstado(int id)
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null) return NotFound(new { mensaje = "Usuario no encontrado" });
+
+            // No dejamos que el admin se suspenda a sí mismo por error
+            if (usuario.Rol == "admin") return BadRequest(new { mensaje = "No puedes suspender a otro administrador." });
+
+            usuario.Activo = !usuario.Activo; // Invierte el estado
+            await _context.SaveChangesAsync();
+            return Ok(new { mensaje = usuario.Activo ? "Usuario reactivado" : "Usuario suspendido" });
+        }
+
+        // SUSPENDER / ACTIVAR PARTIDO
+        [HttpPut("partidos/{id}/toggle-estado")]
+        public async Task<IActionResult> TogglePartidoEstado(int id)
+        {
+            var partido = await _context.Partidos.FindAsync(id);
+            if (partido == null) return NotFound(new { mensaje = "Partido no encontrado" });
+
+            partido.Estado = partido.Estado == "Activo" ? "Suspendido" : "Activo";
+            await _context.SaveChangesAsync();
+            return Ok(new { mensaje = $"Partido {partido.Estado.ToLower()}" });
+        }
+
     }
 }

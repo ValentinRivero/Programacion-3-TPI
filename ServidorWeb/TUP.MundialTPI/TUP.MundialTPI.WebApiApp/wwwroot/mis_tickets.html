@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Tickets - Mundial 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <header class="navbar bg-primary-dark shadow-sm">
+        <div class="container nav-content">
+            <div style="display: flex; align-items: center;">
+                <a href="/" class="brand" style="color: white; margin-right: 2rem;">🏆 FIFA 2026</a>
+                <nav id="nav-left">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/partidos.html" class="nav-link">Partidos</a>
+                </nav>
+            </div>
+            <div id="nav-right" style="display: flex; align-items: center;"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; margin-bottom: 2rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 1rem;">
+            <h2 style="color: var(--color-primary-dark); font-size: 2rem; font-weight: 800;">Mis Compras</h2>
+            <button onclick="window.print()" class="btn btn-secondary">Imprimir Comprobantes</button>
+        </div>
+
+        <div id="tickets-container" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <p>Buscando tus tickets seguros...</p>
+        </div>
+    </main>
+
+    <script type="module" src="js/mis_tickets.js"></script>
+</body>
+</html>
