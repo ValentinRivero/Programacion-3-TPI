@@ -35,16 +35,16 @@
                 <form id="form-compra">
                     <div class="form-group">
                         <label for="tipo-entrada">Categoría de entrada</label>
-                        <select id="tipo-entrada" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 1rem; outline: none;">
-                            <option value="General" data-precio="250">General - $250 USD</option>
-                            <option value="Platea" data-precio="400">Platea - $400 USD</option>
-                            <option value="VIP" data-precio="800">VIP - $800 USD</option>
+                        <select id="tipo-entrada" style="width: 100%; padding: 0.8rem; border-radius: 8px;">
+                            <option value="1" data-precio="250">Categoría 1 - Laterales ($250)</option>
+                            <option value="2" data-precio="150">Categoría 2 - Córners ($150)</option>
+                            <option value="3" data-precio="100">Categoría 3 - Cabeceras ($100)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="cantidad">Cantidad de tickets (Máximo 10)</label>
-                        <input type="number" id="cantidad" min="1" max="10" value="1" style="font-size: 1rem;" required>
+                        <label for="cantidad">Cantidad de tickets (Máximo 4)</label>
+                        <input type="number" id="cantidad" min="1" max="4" value="1" style="font-size: 1rem;" required>
                     </div>
 
                     <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">

@@ -44,7 +44,8 @@ async function cargarDetalle() {
 function actualizarPrecio() {
     const select = document.getElementById('tipo-entrada');
     const opcionSel = select.options[select.selectedIndex];
-    const precioUnitario = parseInt(opcionSel.getAttribute('data-precio'));
+
+    const precioUnitario = parseInt(opcionSel.getAttribute('data-precio')) || 0;
     const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
 
     document.getElementById('precio-total').textContent = `$${precioUnitario * cantidad} USD`;
@@ -57,10 +58,9 @@ document.getElementById('cantidad').addEventListener('input', actualizarPrecio);
 document.getElementById('form-compra').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-
     if (!auth.isAuthenticated()) {
-        alert('Debés iniciar sesión para poder comprar entradas.');
-        window.location.href = '/login.html';
+        ui.showToast('Debés iniciar sesión para poder comprar entradas.', 'error');
+        setTimeout(() => window.location.href = '/login.html', 1500);
         return;
     }
 
@@ -69,23 +69,24 @@ document.getElementById('form-compra').addEventListener('submit', async (e) => {
     btnComprar.textContent = 'Procesando pago seguro...';
 
     const cantidad = parseInt(document.getElementById('cantidad').value);
-    const tipoEntrada = document.getElementById('tipo-entrada').value;
+    const categoriaId = parseInt(document.getElementById('tipo-entrada').value);
 
     try {
-        await api.fetch('/tickets', {
+        const respuesta = await api.fetch('/tickets/comprar', {
             method: 'POST',
             body: JSON.stringify({
                 partidoId: parseInt(partidoId),
-                tipoEntrada: ui.sanitizeInput(tipoEntrada),
+                categoriaId: categoriaId,
                 cantidad: cantidad
             })
         });
 
-        alert('¡Compra exitosa! Tu ticket ya está registrado.');
-        window.location.href = '/mis_tickets.html';
+        ui.showToast(respuesta.mensaje || '¡Compra exitosa! Tus tickets ya están registrados.', 'success');
+
+        setTimeout(() => window.location.href = '/mis_tickets.html', 2000);
 
     } catch (error) {
-        alert('Ocurrió un error con la transacción: ' + ui.escapeHTML(error.message));
+        ui.showToast('Ocurrió un error con la transacción: ' + ui.escapeHTML(error.message), 'error');
         btnComprar.disabled = false;
         btnComprar.textContent = 'Confirmar Pago';
     }

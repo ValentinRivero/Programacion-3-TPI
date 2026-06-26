@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TUP.MundialTPI.DatosEF;
@@ -11,9 +12,11 @@ using TUP.MundialTPI.DatosEF;
 namespace TUP.MundialTPI.DatosEF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260626115608_AgregarTablaCategorias")]
+    partial class AgregarTablaCategorias
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,9 +246,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("CategoriaId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("FechaCompra")
                         .HasColumnType("timestamp with time zone");
 
@@ -255,12 +255,14 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                     b.Property<decimal>("Precio")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("TipoEntrada")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("UsuarioId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoriaId");
 
                     b.HasIndex("PartidoId");
 
@@ -328,12 +330,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
 
             modelBuilder.Entity("TUP.MundialTPI.Entidades.Ticket", b =>
                 {
-                    b.HasOne("TUP.MundialTPI.Entidades.CategoriaEntrada", "Categoria")
-                        .WithMany()
-                        .HasForeignKey("CategoriaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TUP.MundialTPI.Entidades.Partido", "Partido")
                         .WithMany()
                         .HasForeignKey("PartidoId")
@@ -345,8 +341,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Categoria");
 
                     b.Navigation("Partido");
 

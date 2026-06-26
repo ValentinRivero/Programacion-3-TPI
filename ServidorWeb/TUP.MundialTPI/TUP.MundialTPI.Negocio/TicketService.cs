@@ -14,26 +14,36 @@ namespace TUP.MundialTPI.Negocio
         private readonly AppDbContext _context;
         public TicketService(AppDbContext context) => _context = context;
 
-        public async Task<Ticket> ComprarAsync(int usuarioId, ComprarTicketDTO dto)
+        public async Task<List<Ticket>> ComprarAsync(int usuarioId, ComprarTicketDTO dto)
         {
             var partido = await _context.Partidos.FindAsync(dto.PartidoId);
-            if (partido == null) throw new Exception("Partido no encontrado");
-            if (partido.EntradasDisponibles < dto.Cantidad) throw new Exception("No hay suficientes entradas");
+            if (partido == null || partido.Estado != "Activo") throw new Exception("Partido no disponible.");
+            if (partido.EntradasDisponibles < dto.Cantidad) throw new Exception("Stock insuficiente.");
+
+            var categoria = await _context.CategoriasEntradas.FindAsync(dto.CategoriaId);
+            if (categoria == null || !categoria.Activo) throw new Exception("Categoría no válida.");
+
+            var nuevosTickets = new List<Ticket>();
+
+            for (int i = 0; i < dto.Cantidad; i++)
+            {
+                nuevosTickets.Add(new Ticket
+                {
+                    UsuarioId = usuarioId,
+                    PartidoId = dto.PartidoId,
+                    CategoriaId = categoria.Id,
+                    Precio = categoria.PrecioActual,
+                    FechaCompra = DateTime.UtcNow,
+                    Activo = true
+                });
+            }
 
             partido.EntradasDisponibles -= dto.Cantidad;
 
-            var ticket = new Ticket
-            {
-                PartidoId = dto.PartidoId,
-                UsuarioId = usuarioId,
-                TipoEntrada = dto.TipoEntrada,
-                Precio = 250m * dto.Cantidad,
-                FechaCompra = DateTime.UtcNow
-            };
-
-            _context.Tickets.Add(ticket);
+            _context.Tickets.AddRange(nuevosTickets);
             await _context.SaveChangesAsync();
-            return ticket;
+
+            return nuevosTickets;
         }
 
         public async Task<List<Ticket>> GetAllTicketsAsync()
@@ -45,12 +55,13 @@ namespace TUP.MundialTPI.Negocio
         }
         public async Task<IEnumerable<Ticket>> GetMisTicketsAsync(int usuarioId)
         {
-            return await _context.Tickets
+            var tickets = await _context.Tickets
                 .Include(t => t.Partido)
-                    .ThenInclude(p => p.Estadio)
+                .ThenInclude(p => p.Estadio)
                 .Where(t => t.UsuarioId == usuarioId)
-                .OrderByDescending(t => t.Id)
                 .ToListAsync();
+
+            return tickets;
         }
     }
 }

@@ -7,21 +7,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
     <style>
-        /* Estilos específicos para el layout del Panel Admin */
+        :root {
+            --sidebar-bg: #0f172a;
+            --sidebar-hover: #1e293b;
+            --admin-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
         body {
             margin: 0;
             display: flex;
             height: 100vh;
-            background-color: var(--color-bg);
+            background-color: var(--admin-bg);
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
+            color: #334155;
         }
 
+        /* Layout Sidebar y Main */
         .sidebar {
-            width: 250px;
-            background-color: var(--color-primary-dark);
-            color: white;
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: #cbd5e1;
             display: flex;
             flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 10;
         }
 
         .sidebar-header {
@@ -29,135 +42,402 @@
             text-align: center;
             font-weight: 800;
             font-size: 1.2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
         .menu-btn {
-            padding: 1rem 1.5rem;
+            padding: 1.2rem 1.5rem;
             background: transparent;
             border: none;
-            color: rgba(255,255,255,0.7);
+            color: #cbd5e1;
             text-align: left;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             transition: all 0.2s;
         }
 
             .menu-btn:hover, .menu-btn.active {
-                background-color: var(--color-primary);
+                background-color: var(--sidebar-hover);
                 color: white;
                 border-left: 4px solid var(--color-accent);
             }
 
         .main-content {
             flex: 1;
-            padding: 2rem;
+            padding: 2.5rem;
             overflow-y: auto;
         }
 
+        .admin-view {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        /* Controles de Vista (Buscadores y Paginación) */
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-bar {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            width: 300px;
+            font-family: inherit;
+            outline: none;
+        }
+
+            .search-bar:focus {
+                border-color: var(--color-primary);
+                box-shadow: 0 0 0 3px rgba(84, 109, 229, 0.1);
+            }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid var(--border-color);
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* KPIs y Tablas */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
         }
 
         .kpi-card {
-            background: white;
+            background: var(--card-bg);
             padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            border-top: 4px solid var(--color-primary);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--color-primary);
         }
 
             .kpi-card h4 {
                 margin: 0 0 0.5rem 0;
-                color: var(--color-text-muted);
-                font-size: 0.9rem;
+                color: #64748b;
+                font-size: 0.85rem;
                 text-transform: uppercase;
             }
 
             .kpi-card .value {
-                font-size: 2rem;
+                font-size: 2.2rem;
                 font-weight: 800;
-                color: var(--color-primary-dark);
+                color: #0f172a;
             }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
 
         .admin-table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
+            white-space: nowrap;
         }
 
             .admin-table th, .admin-table td {
-                padding: 1rem;
+                padding: 1.2rem 1.5rem;
                 text-align: left;
-                border-bottom: 1px solid #eee;
+                border-bottom: 1px solid var(--border-color);
             }
 
             .admin-table th {
-                background-color: var(--color-primary-light);
-                color: white;
-                font-weight: 600;
+                background-color: #f8fafc;
+                color: #475569;
+                font-weight: 700;
+                font-size: 0.85rem;
+                text-transform: uppercase;
             }
 
             .admin-table tr:hover {
-                background-color: #f9fafb;
+                background-color: #f1f5f9;
             }
+
+        /* Badges y Botones */
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-activo {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-suspendido {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-en-juego {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-oculto {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+            .modal-content h3 {
+                margin-top: 0;
+                color: var(--color-primary-dark);
+                margin-bottom: 1.5rem;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 0.5rem;
+            }
+
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://unpkg.com/imask"></script>
 </head>
 <body>
 
     <aside class="sidebar">
         <div class="sidebar-header">⚙️ Admin Control</div>
-        <button class="menu-btn active" data-target="dashboard-view">Dashboard</button>
-        <button class="menu-btn" data-target="partidos-view">Gestión de Partidos</button>
-        <button class="menu-btn" data-target="usuarios-view">Usuarios Registrados</button>
-        <button class="menu-btn" data-target="tickets-view">Auditoría de Tickets</button>
+        <button class="menu-btn" data-hash="#dashboard">Dashboard</button>
+        <button class="menu-btn" data-hash="#partidos">Gestión de Partidos</button>
+        <button class="menu-btn" data-hash="#usuarios">Usuarios Registrados</button>
+        <button class="menu-btn" data-hash="#tickets">Auditoría de Tickets</button>
         <div style="flex: 1;"></div>
         <a href="/" class="menu-btn" style="text-align: center; color: var(--color-accent);">Volver a la Web</a>
     </aside>
 
     <main class="main-content">
-        <section id="dashboard-view" class="admin-view">
-            <h2 style="color: var(--color-primary-dark); margin-bottom: 1.5rem;">Métricas en Vivo</h2>
-            <div class="kpi-grid" id="kpi-container">
-                <p>Cargando estadísticas...</p>
+        <section id="dashboard" class="admin-view">
+            <h2 style="color: var(--color-primary-dark); margin-bottom: 1.5rem;">Métricas</h2>
+            <div class="kpi-grid" id="kpi-container"><p>Cargando estadísticas...</p></div>
+        </section>
+
+        <section id="partidos" class="admin-view">
+            <div class="view-header">
+                <h2 style="color: var(--color-primary-dark); margin: 0;">Catálogo de Partidos</h2>
+                <div style="display: flex; gap: 1rem;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="search-partidos" class="search-bar" placeholder="Buscar por equipo, fase o ID...">
+                        <button id="btn-search-partidos" class="btn btn-outline" style="color: var(--color-primary); border-color: var(--color-primary);">Buscar</button>
+                    </div>
+                    <button class="btn btn-accent" onclick="abrirModalCrear()">Crear Partido</button>
+                </div>
+            </div>
+            </div>
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead><tr><th>ID</th><th>Encuentro</th><th>Fase</th><th>Estado</th><th>Entradas Disp.</th><th>Acciones</th></tr></thead>
+                    <tbody id="tbody-partidos"></tbody>
+                </table>
+            </div>
+            <div class="pagination-controls">
+                <button class="btn btn-outline" style="color: #64748b; border-color: #e2e8f0;" id="btn-prev-partidos">Anterior</button>
+                <span style="font-weight: 600; color: #475569;" id="page-info-partidos">Página 1</span>
+                <button class="btn btn-outline" style="color: #64748b; border-color: #e2e8f0;" id="btn-next-partidos">Siguiente</button>
             </div>
         </section>
 
-        <section id="partidos-view" class="admin-view" style="display: none;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
-                <h2 style="color: var(--color-primary-dark);">Gestión de Partidos</h2>
-                <button id="btn-nuevo-partido" class="btn btn-accent">Crear Partido</button>
+        <section id="usuarios" class="admin-view">
+            <div class="view-header">
+                <h2 style="color: var(--color-primary-dark); margin: 0;">Directorio de Usuarios</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="search-usuarios" class="search-bar" placeholder="Buscar por nombre o email o ID...">
+                    <button id="btn-search-usuarios" class="btn btn-outline" style="color: var(--color-primary); border-color: var(--color-primary);">Buscar</button>
+                </div>
             </div>
-            <table class="admin-table">
-                <thead><tr><th>ID</th><th>Local</th><th>Visitante</th><th>Fase</th><th>Entradas</th><th>Acciones</th></tr></thead>
-                <tbody id="tbody-partidos"></tbody>
-            </table>
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <tbody id="tbody-usuarios"></tbody>
+                </table>
+            </div>
+            <div class="pagination-controls">
+                <button class="btn btn-outline" style="color: #64748b; border-color: #e2e8f0;" id="btn-prev-usuarios">Anterior</button>
+                <span style="font-weight: 600; color: #475569;" id="page-info-usuarios">Página 1</span>
+                <button class="btn btn-outline" style="color: #64748b; border-color: #e2e8f0;" id="btn-next-usuarios">Siguiente</button>
+            </div>
         </section>
 
-        <section id="usuarios-view" class="admin-view" style="display: none;">
-            <h2 style="color: var(--color-primary-dark); margin-bottom: 1.5rem;">Usuarios Registrados</h2>
-            <table class="admin-table">
-                <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th></tr></thead>
-                <tbody id="tbody-usuarios"></tbody>
-            </table>
-        </section>
-
-        <section id="tickets-view" class="admin-view" style="display: none;">
-            <h2 style="color: var(--color-primary-dark); margin-bottom: 1.5rem;">Auditoría de Tickets</h2>
-            <table class="admin-table">
-                <thead><tr><th>Ticket #</th><th>Partido</th><th>Email Comprador</th><th>Tipo</th><th>Precio</th></tr></thead>
-                <tbody id="tbody-tickets"></tbody>
-            </table>
+        <section id="tickets" class="admin-view">
+            <div class="view-header">
+                <h2 style="color: var(--color-primary-dark); margin: 0;">Auditoría de Tickets</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="search-tickets" class="search-bar" placeholder="Buscar por email, partido o ID...">
+                    <button id="btn-search-tickets" class="btn btn-outline" style="color: var(--color-primary); border-color: var(--color-primary);">Buscar</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead><tr><th>Ticket #</th><th>Partido</th><th>Comprador</th><th>Tipo</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <tbody id="tbody-tickets"></tbody>
+                </table>
+            </div>
+            <div class="pagination-controls">
+                <button class="btn btn-outline" style="color: #64748b; border-color: #e2e8f0;" id="btn-prev-tickets">Anterior</button>
+                <span style="font-weight: 600; color: #475569;" id="page-info-tickets">Página 1</span>
+                <button class="btn btn-outline" style="color: #64748b; border-color: #e2e8f0;" id="btn-next-tickets">Siguiente</button>
+            </div>
         </section>
     </main>
 
+    <div id="modal-partido" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3>⚙️ Gestión Detallada del Partido</h3>
+            <form id="form-editar-partido">
+                <input type="hidden" id="edit-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group"><label>Local</label><input type="text" id="edit-local" required></div>
+                    <div class="form-group"><label>Visitante</label><input type="text" id="edit-visitante" required></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Fase</label>
+                        <select id="edit-fase" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                            <option value="Fase de Grupos">Fase de Grupos</option>
+                            <option value="Octavos de Final">Octavos de Final</option>
+                            <option value="Cuartos de Final">Cuartos de Final</option>
+                            <option value="Semifinal">Semifinal</option>
+                            <option value="Final">Final</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha y Hora</label>
+                        <input type="text" id="edit-fecha" required placeholder="DD/MM/AAAA HH:MM">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group"><label>Entradas</label><input type="number" id="edit-entradas" required min="0"></div>
+                    <div class="form-group"><label>ID Estadio</label><input type="number" id="edit-estadio" required min="1"></div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="edit-estado" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                            <option value="Oculto">Oculto</option>
+                            <option value="Activo">Activo (Público)</option>
+                            <option value="En Juego">En Juego</option>
+                            <option value="Suspendido">Suspendido</option>
+                            <option value="Finalizado">Finalizado</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar Cambios</button>
+                    <button type="button" class="btn btn-outline" style="color: #64748b; border-color: #cbd5e1;" onclick="cerrarModal()">Cancelar</button>
+                </div>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <button type="button" class="btn btn-error btn-full" id="btn-eliminar-partido">Eliminar Partido Definitivamente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-crear-partido" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3>⚽ Programar Nuevo Partido</h3>
+            <form id="form-crear-partido">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Equipo Local</label>
+                        <input type="text" id="crear-local" required placeholder="Ej: Argentina" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label>Equipo Visitante</label>
+                        <input type="text" id="crear-visitante" required placeholder="Ej: Brasil" maxlength="50">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Fase del Torneo</label>
+                        <select id="crear-fase" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                            <option value="Fase de Grupos">Fase de Grupos</option>
+                            <option value="Octavos de Final">Octavos de Final</option>
+                            <option value="Cuartos de Final">Cuartos de Final</option>
+                            <option value="Semifinal">Semifinal</option>
+                            <option value="Final">Final</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha y Hora</label>
+                        <input type="text" id="crear-fecha" required placeholder="Tipear fecha...">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Entradas a la Venta</label>
+                        <input type="number" id="crear-entradas" required min="1" max="100000" placeholder="Ej: 50000">
+                    </div>
+                    <div class="form-group">
+                        <label>ID del Estadio</label>
+                        <input type="number" id="crear-estadio" required min="1" placeholder="Ej: 1">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Registrar Partido</button>
+                    <button type="button" class="btn btn-outline" style="color: #64748b; border-color: #cbd5e1;" onclick="cerrarModalCrear()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script type="module" src="js/admin.js"></script>
 </body>
 </html>

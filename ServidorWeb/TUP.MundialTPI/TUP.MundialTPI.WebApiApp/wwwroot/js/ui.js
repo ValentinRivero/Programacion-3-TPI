@@ -1,4 +1,5 @@
 ﻿import { auth } from './auth.js';
+import { obtenerUrlBandera } from './banderas.js';
 export const ui = {
     setupNavbar() {
         const navLeft = document.getElementById('nav-left');
@@ -49,23 +50,21 @@ export const ui = {
         const local = this.escapeHTML(partido.equipoLocal);
         const visitante = this.escapeHTML(partido.equipoVisitante);
         const fase = this.escapeHTML(partido.fase);
-
-        const codes = {
-            'argentina': 'ar', 'brasil': 'br', 'francia': 'fr',
-            'españa': 'es', 'méxico': 'mx', 'alemania': 'de',
-            'canadá': 'ca', 'italia': 'it'
-        };
-        const flagL = codes[local.toLowerCase()] || 'un';
-        const flagV = codes[visitante.toLowerCase()] || 'un';
         const agotado = partido.entradasDisponibles === 0;
+
+        // ACÁ USAMOS NUESTRO NUEVO MÓDULO
+        const urlBanderaL = obtenerUrlBandera(local);
+        const urlBanderaV = obtenerUrlBandera(visitante);
 
         const article = document.createElement('article');
         article.className = 'card shadow-md';
+
+        // Y en las imágenes, simplemente inyectamos la variable
         article.innerHTML = `
             <div style="position: relative; height: 160px; display: flex; background: #eee; overflow: hidden;">
                 <span class="phase-badge">${fase}</span>
-                <img src="https://flagcdn.com/w640/${flagL}.png" alt="${local}" style="width: 55%; height: 100%; object-fit: cover; clip-path: polygon(0 0, 100% 0, 80% 100%, 0% 100%); z-index: 2;">
-                <img src="https://flagcdn.com/w640/${flagV}.png" alt="${visitante}" style="width: 55%; height: 100%; object-fit: cover; position: absolute; right: 0; z-index: 1;">
+                <img src="${urlBanderaL}" alt="${local}" style="width: 55%; height: 100%; object-fit: cover; clip-path: polygon(0 0, 100% 0, 80% 100%, 0% 100%); z-index: 2;">
+                <img src="${urlBanderaV}" alt="${visitante}" style="width: 55%; height: 100%; object-fit: cover; position: absolute; right: 0; z-index: 1;">
                 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: var(--color-accent);">VS</div>
             </div>
             <div class="card-content">
@@ -78,5 +77,139 @@ export const ui = {
             </div>
         `;
         return article;
+    },
+
+    // --- NUEVO: SISTEMA DE ALERTAS Y CONFIRMACIONES GLOBALES ---
+
+//    Para mostrar éxito al guardar algo:
+//        ui.showToast("Datos guardados");
+
+//    Para mostrar un error atrapado en un catch:
+//        ui.showToast(error.message, "error");
+
+//    Para un mensaje informativo:
+//        ui.showToast("Cargando nuevos datos...", "info");
+
+//    Para proteger una acción:
+//      const seguro = await ui.confirm("¿Vaciar carrito?");
+//    if(seguro) { ... }
+
+    // Toats
+    showToast(mensaje, tipo = 'success') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+            Object.assign(container.style, {
+                position: 'fixed', top: '20px', right: '20px', zIndex: '9999',
+                display: 'flex', flexDirection: 'column', gap: '10px'
+            });
+        }
+
+        const toast = document.createElement('div');
+        toast.textContent = mensaje;
+
+        const bgColor = tipo === 'error' ? '#e74c3c' : (tipo === 'info' ? '#3498db' : '#10b981');
+
+        Object.assign(toast.style, {
+            background: bgColor, color: 'white', padding: '12px 24px',
+            borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            fontFamily: 'Inter, sans-serif', fontSize: '0.95rem', fontWeight: '600',
+            opacity: '0', transform: 'translateY(-20px)', transition: 'all 0.3s ease'
+        });
+
+        container.appendChild(toast);
+
+        setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; }, 10);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    },
+
+    confirm(mensaje) {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            Object.assign(overlay.style, {
+                position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+                background: 'rgba(15, 23, 42, 0.6)', display: 'flex', justifyContent: 'center',
+                alignItems: 'center', zIndex: '10000', backdropFilter: 'blur(3px)',
+                opacity: '0', transition: 'opacity 0.2s ease'
+            });
+
+            const box = document.createElement('div');
+            Object.assign(box.style, {
+                background: 'white', padding: '2rem', borderRadius: '16px',
+                width: '90%', maxWidth: '400px', textAlign: 'center',
+                boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
+                transform: 'scale(0.9)', transition: 'transform 0.2s ease'
+            });
+
+            const text = document.createElement('p');
+            text.textContent = mensaje;
+            Object.assign(text.style, { margin: '0 0 1.5rem 0', color: '#1e293b', fontSize: '1.1rem', fontWeight: '600' });
+
+            const btnContainer = document.createElement('div');
+            Object.assign(btnContainer.style, { display: 'flex', gap: '1rem', justifyContent: 'center' });
+
+            const btnCancel = document.createElement('button');
+            btnCancel.textContent = 'Cancelar';
+            btnCancel.className = 'btn btn-outline';
+            Object.assign(btnCancel.style, { flex: '1', color: '#64748b', borderColor: '#cbd5e1' });
+
+            const btnConfirm = document.createElement('button');
+            btnConfirm.textContent = 'Aceptar';
+            btnConfirm.className = 'btn btn-primary';
+            Object.assign(btnConfirm.style, { flex: '1' });
+
+            btnContainer.append(btnCancel, btnConfirm);
+            box.append(text, btnContainer);
+            overlay.append(box);
+            document.body.appendChild(overlay);
+
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                box.style.transform = 'scale(1)';
+            });
+
+            const close = (resultado) => {
+                overlay.style.opacity = '0';
+                box.style.transform = 'scale(0.9)';
+                setTimeout(() => overlay.remove(), 200);
+                resolve(resultado);
+            };
+
+            btnCancel.onclick = () => close(false);
+            btnConfirm.onclick = () => close(true);
+        });
+    },
+
+    aplicarMascaraFecha(elementId) {
+        const input = document.getElementById(elementId);
+        if (!input) return null;
+
+        return IMask(input, {
+            mask: 'DD/MM/YYYY HH:mm',
+            blocks: {
+                DD: { mask: IMask.MaskedRange, from: 1, to: 31, maxLength: 2 },
+                MM: { mask: IMask.MaskedRange, from: 1, to: 12, maxLength: 2 },
+                YYYY: { mask: '0000' },
+                HH: { mask: IMask.MaskedRange, from: 0, to: 23, maxLength: 2 },
+                mm: { mask: IMask.MaskedRange, from: 0, to: 59, maxLength: 2 }
+            },
+            lazy: false,
+            placeholderChar: '_'
+        });
+    },
+
+    parseFechaMascara(fechaMasked) {
+        if (!fechaMasked || fechaMasked.includes('_')) return null;
+        const [fecha, hora] = fechaMasked.split(' ');
+        const [dia, mes, anio] = fecha.split('/');
+        return `${anio}-${mes}-${dia}T${hora}`;
     }
-};
+
+}; 

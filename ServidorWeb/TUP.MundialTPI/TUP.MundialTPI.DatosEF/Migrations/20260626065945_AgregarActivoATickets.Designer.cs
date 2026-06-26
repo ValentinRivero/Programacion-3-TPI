@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TUP.MundialTPI.DatosEF;
@@ -11,9 +12,11 @@ using TUP.MundialTPI.DatosEF;
 namespace TUP.MundialTPI.DatosEF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260626065945_AgregarActivoATickets")]
+    partial class AgregarActivoATickets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,53 +24,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("TUP.MundialTPI.Entidades.CategoriaEntrada", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<decimal>("PrecioActual")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CategoriasEntradas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Activo = true,
-                            Nombre = "Categoría 1",
-                            PrecioActual = 250m
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Activo = true,
-                            Nombre = "Categoría 2",
-                            PrecioActual = 150m
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Activo = true,
-                            Nombre = "Categoría 3",
-                            PrecioActual = 100m
-                        });
-                });
 
             modelBuilder.Entity("TUP.MundialTPI.Entidades.Estadio", b =>
                 {
@@ -150,9 +106,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                     b.Property<int>("EntradasDisponibles")
                         .HasColumnType("integer");
 
-                    b.Property<int>("EntradasMaximas")
-                        .HasColumnType("integer");
-
                     b.Property<string>("EquipoLocal")
                         .IsRequired()
                         .HasColumnType("text");
@@ -186,7 +139,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         {
                             Id = 1,
                             EntradasDisponibles = 1240,
-                            EntradasMaximas = 0,
                             EquipoLocal = "Argentina",
                             EquipoVisitante = "Brasil",
                             EstadioId = 1,
@@ -198,7 +150,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         {
                             Id = 2,
                             EntradasDisponibles = 500,
-                            EntradasMaximas = 0,
                             EquipoLocal = "Francia",
                             EquipoVisitante = "España",
                             EstadioId = 2,
@@ -210,7 +161,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         {
                             Id = 3,
                             EntradasDisponibles = 0,
-                            EntradasMaximas = 0,
                             EquipoLocal = "México",
                             EquipoVisitante = "Alemania",
                             EstadioId = 3,
@@ -222,7 +172,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         {
                             Id = 4,
                             EntradasDisponibles = 3200,
-                            EntradasMaximas = 0,
                             EquipoLocal = "Canadá",
                             EquipoVisitante = "Italia",
                             EstadioId = 4,
@@ -243,9 +192,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("CategoriaId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("FechaCompra")
                         .HasColumnType("timestamp with time zone");
 
@@ -255,12 +201,14 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                     b.Property<decimal>("Precio")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("TipoEntrada")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("UsuarioId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoriaId");
 
                     b.HasIndex("PartidoId");
 
@@ -328,12 +276,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
 
             modelBuilder.Entity("TUP.MundialTPI.Entidades.Ticket", b =>
                 {
-                    b.HasOne("TUP.MundialTPI.Entidades.CategoriaEntrada", "Categoria")
-                        .WithMany()
-                        .HasForeignKey("CategoriaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TUP.MundialTPI.Entidades.Partido", "Partido")
                         .WithMany()
                         .HasForeignKey("PartidoId")
@@ -345,8 +287,6 @@ namespace TUP.MundialTPI.DatosEF.Migrations
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Categoria");
 
                     b.Navigation("Partido");
 
