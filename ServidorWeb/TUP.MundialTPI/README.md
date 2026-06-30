@@ -1,63 +1,43 @@
-# FIFA 2026 - Gestión de Entradas (TPI Programación III)
+# 🏆 FIFA 2026 - Sistema de Gestión de Entradas (TPI Programación III)
 
-Plataforma oficial para la compra de tickets del Mundial FIFA 2026, desarrollada como Trabajo Práctico Integrador (TP1 - TP4) para la cátedra de Programación III de la TUP. 
+Plataforma oficial para la compra de tickets del Mundial FIFA 2026, desarrollada como Trabajo Práctico Integrador (TP1 - TP4) para la cátedra de Programación III.
 
-El sistema incluye una Single Page Application (SPA) pública de catálogo de eventos deportivos, sistema de registro y login de usuarios, simulación de compra de tickets en línea y un panel de administración completo de acceso restringido.
+El sistema incluye una Single Page Application (SPA) responsiva para el catálogo de partidos, un sistema de autenticación seguro, procesamiento de tickets en línea y un panel de administración completo de acceso restringido.
 
-## Requisitos del Sistema
-- **.NET SDK 10.0** (Comprobado: v10.0.201)
-- Navegador Web Moderno (Soporte pleno de HTML5/CSS3/Vanilla JS).
+🚀 **Demo en vivo (Producción):** [https://mundial.irracional.net](https://mundial.irracional.net)
 
-## Arquitectura y Base de Datos
-El proyecto implementa una arquitectura en N-Capas que separa Entidades, Lógica de Negocio (Servicios), Acceso a Datos (EF) y la WebAPI pública.
+---
 
-Se utiliza **Entity Framework Core con SQLite** para una configuración de persistencia ligera. El archivo de base de datos (`mundial.db`) se genera y asocia automáticamente en el entorno backend al aplicar las migraciones de EF. Si es necesario crearlo o actualizarlo manualmente desde cero, ejecuta:
-```bash
-dotnet ef database update --project TUP.MundialTPI.DatosEF --startup-project TUP.MundialTPI.WebApiApp
-```
+## 🏗️ Arquitectura del Sistema
+El proyecto implementa una arquitectura N-Capas escalable y orientada a servicios, cumpliendo con todos los requerimientos de la asignatura:
 
-## Instrucciones de Ejecución
-1. Abrir la terminal y ubicarse en la carpeta raíz de la solución (`TUP.MundialTPI`).
-2. Ejecutar el proyecto WebApiApp indicando la ruta:
+* **Frontend (TP1):** Interfaz SPA construida con HTML5, CSS3 y Vanilla JavaScript. Diseño full-responsive adaptado a móviles (Mobile First), manipulación dinámica del DOM y consumo de APIs mediante `fetch`.
+* **Backend y Compra de Tickets (TP2):** Web API RESTful desarrollada en **C# y .NET 10**. Separación clara de responsabilidades (Controladores, Servicios, Repositorios).
+* **Autenticación y Seguridad (TP3):** Sistema robusto mediante **JWT (JSON Web Tokens)**. Contraseñas hasheadas en base de datos. Protección de endpoints y renderizado condicional en el frontend según el estado de la sesión.
+* **Base de Datos y Despliegue (TP4):** Migración a **PostgreSQL** alojado en Supabase, utilizando Entity Framework Core. Despliegue continuo en **Microsoft Azure App Service** y protección de red / caché gestionada a través de **Cloudflare**.
+
+---
+
+## ⚙️ Credenciales de Evaluación (Panel Admin)
+Por motivos de seguridad y buenas prácticas, las credenciales de la cuenta con rol `admin` (necesarias para evaluar los requerimientos de ABM del TP4) **no se publican en este repositorio**. 
+
+Las mismas serán provistas al equipo docente a través del Campus Virtual o durante el coloquio de presentación.
+
+---
+
+## 🚀 Instalación y Ejecución Local
+Para auditar y ejecutar el código fuente en un entorno local:
+
+### Requisitos Previos
+- .NET 10.0 SDK
+- Editor de código (Visual Studio 2026 Community / VS Code)
+
+### Pasos de ejecución
+1. Clonar el repositorio y navegar a la raíz de la solución.
+2. Como el proyecto utiliza credenciales seguras de PostgreSQL y llaves JWT en producción, es necesario configurar los secretos locales (`User Secrets`) para compilar. Ejecutar en la terminal de la carpeta `TUP.MundialTPI.WebApiApp`:
    ```bash
-   dotnet run --project TUP.MundialTPI.WebApiApp
-   ```
-   *(Alternativa: Navegar con `cd` hacia la carpeta `TUP.MundialTPI.WebApiApp` y allí ejecutar simplemente `dotnet run`)*
-3. Abrir el navegador en la URL local de la terminal (usualmente `http://localhost:5021` o `https://localhost:5001`).
-   - Se presentará directamente la interfaz web (`index.html`) provista por `UseDefaultFiles()`.
-   - La documentación Swagger de la API está disponible en la ruta `/swagger`.
-
-## Credenciales de Prueba (Semilla)
-Al generarse la base de datos, se inyecta un usuario semilla con **rol de administrador** y contraseña encriptada (BCrypt) para que puedan realizarse pruebas del **Panel Admin**:
-- **Email:** `admin@mundial.com`
-- **Contraseña:** `admin123`
-
----
-
-## Resumen de Trabajos Prácticos (TPs) Implementados
-
-- **TP1 (Frontend Web - Catálogo):** 
-  - Diseño visual nativo en HTML/CSS/JS (sin librerías).
-  - Estética "glassmorphism" elegante.
-  - Generación de cards dinámicas del catálogo consumiendo datos estructurados (originalmente Mock, luego API).
-
-- **TP2 (Backend WebAPI y Compra):** 
-  - Integración EF Core (SQLite) y N-Capas.
-  - Creación de entidades base del dominio (`Partido`, `Estadio`, `Ticket`).
-  - Refactorización del código Javascript del front-end para consumir las rutas reales `/api/partidos` y `/api/tickets`.
-
-- **TP3 (Autenticación JWT y Modales):** 
-  - Registro seguro de clientes (contraseñas hasheadas con BCrypt).
-  - Generación, inyección y validación de tokens JWT.
-  - Implementación de Single Page Application: Flujos de Modales asíncronos y sistema que detecta sesiones expiradas reanudando las compras luego del login transparente.
-
-- **TP4 (Panel de Administración y Restricciones):** 
-  - Manejo integral de Roles (`user` vs `admin`). Los roles no son inyectables vía cliente (DTo seguro).
-  - Tablas visuales e interactivas en SPA que permiten administrar Partidos (CRUD completo), ver el padrón de Usuarios y un historial de todos los Tickets vendidos del sistema.
-  - **Lógicas defensivas Backend:** Validaciones con DataAnnotations, protección `403 Forbidden` verificada, y restricción robusta anti-borrado que devuelve `409 Conflict` si se intenta borrar un evento que ya tiene tickets vendidos.
-  - **Portal Usuario - "Mis Tickets":** Incorporación del perfil final de usuario con un visor privado de compras exitosas.
-
----
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "connection string"
+   dotnet user-secrets set "Jwt__Key" "clave"
 
 ## Lista de Endpoints Principales
 
@@ -68,7 +48,7 @@ Al generarse la base de datos, se inyecta un usuario semilla con **rol de admini
 ### Público y Transaccional
 - `GET /api/partidos`: Catálogo en vivo de próximos encuentros mundiales.
 - `GET /api/partidos/{id}`: Consulta granular de un partido específico.
-- `POST /api/tickets`: Procesamiento de un nuevo ticket de compra. (Requiere Autenticación de Usuario).
+- `POST /api/tickets`: Procesamiento de un nuevo ticket de compra.
 - `GET /api/tickets/mis-tickets`: Historial individual de compras ligadas al Token JWT en sesión. (Requiere Autenticación).
 
 ### Panel de Administración (Requieren rol `admin`)
