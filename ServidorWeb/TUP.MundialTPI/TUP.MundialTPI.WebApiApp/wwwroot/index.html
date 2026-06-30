@@ -9,16 +9,21 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <header class="navbar">
+    <header class="navbar bg-primary-dark shadow-sm">
         <div class="container nav-content">
-            <div style="display: flex; align-items: center;">
-                <a href="/" class="brand" style="color: white; margin-right: 2rem;">🏆 FIFA 2026</a>
+
+            <a href="/" class="brand" style="color: white;">🏆 FIFA 2026</a>
+
+            <button id="btn-hamburguesa" class="menu-toggle" style="color: white;">☰</button>
+
+            <div id="nav-menu" class="nav-links-container">
                 <nav id="nav-left">
-                    <a href="/" class="nav-link active">Home</a>
+                    <a href="/" class="nav-link">Home</a>
                     <a href="/partidos.html" class="nav-link">Partidos</a>
                 </nav>
+                <div id="nav-right"></div>
             </div>
-            <div id="nav-right" style="display: flex; align-items: center;"></div>
+
         </div>
     </header>
 

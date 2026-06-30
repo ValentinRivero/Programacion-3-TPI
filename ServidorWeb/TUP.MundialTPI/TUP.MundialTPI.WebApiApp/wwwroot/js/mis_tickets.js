@@ -113,4 +113,56 @@ async function cargarMisTickets() {
 document.addEventListener('DOMContentLoaded', () => {
     ui.setupNavbar();
     cargarMisTickets();
+
+    const btnImprimir = document.getElementById('btn-imprimir');
+
+    if (btnImprimir) {
+        btnImprimir.addEventListener('click', () => {
+            const contenidoTickets = document.getElementById('tickets-container').innerHTML;
+
+            const ventana = window.open('', '_blank');
+
+            ventana.document.write(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <title>Comprobante de Entradas - Mundial 2026</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+                    <link rel="stylesheet" href="${window.location.origin}/css/main.css">
+                    <style>
+                        /* Limpiamos la hoja para la impresora */
+                        body { background: white !important; padding: 2rem; color: black; }
+                        /* Evitamos que una tarjeta se corte a la mitad de la hoja */
+                        .card { 
+                            border: 2px solid #ccc !important; 
+                            box-shadow: none !important; 
+                            margin-bottom: 2rem; 
+                            page-break-inside: avoid; 
+                        }
+                        /* Ocultamos cualquier mensaje de error de carga si lo hubiera */
+                        .text-error { display: none; }
+                    </style>
+                </head>
+                <body>
+                    <div style="text-align: center; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
+                        <h2 style="color: #3e52b5; font-size: 2rem; font-family: 'Inter', sans-serif;">🏆 Comprobante Oficial - FIFA 2026</h2>
+                        <p style="color: #666; font-family: sans-serif;">Documento generado el ${new Date().toLocaleDateString('es-AR')}</p>
+                    </div>
+                    
+                    ${contenidoTickets}
+                    
+                    <script>
+                        // Le damos medio segundo al navegador para que cargue la fuente y el CSS
+                        setTimeout(() => {
+                            window.print();
+                            window.close(); // Cerramos la pestaña virtual apenas termina
+                        }, 500);
+                    </script>
+                </body>
+                </html>
+            `);
+
+            ventana.document.close();
+        });
+    }
 });
