@@ -5,22 +5,21 @@ export const ui = {
         const navLeft = document.getElementById('nav-left');
         const navRight = document.getElementById('nav-right');
 
+        if (!navLeft || !navRight) {
+            return;
+        }
+
         if (auth.isAuthenticated()) {
             const user = auth.getUser();
 
-            // PASO 1: Empezamos creando el botón normal de "Mis Entradas"
             let linksIzquierda = `<a href="/mis_tickets.html" class="nav-link">Mis Entradas</a>`;
 
-            // PASO 2: ACÁ ESTÁ LA MAGIA. Leemos el "rol" del usuario. 
-            // Si dice "admin", le sumamos el botón del Panel Admin a los links.
             if (user && user.rol === 'admin') {
                 linksIzquierda += `<a href="/admin.html" class="nav-link" style="color: var(--color-accent); font-weight: 800; margin-left: 1rem;">Panel Admin</a>`;
             }
 
-            // Inyectamos los links terminados en la barra izquierda
             navLeft.innerHTML += linksIzquierda;
 
-            // La barra derecha queda igual (Nombre y botón Salir)
             navRight.innerHTML = `
                 <span style="font-weight: 600; color: white; margin-right: 1.5rem;">Hola, ${this.escapeHTML(user.nombre)}</span>
                 <button id="btn-logout" class="btn btn-error">Salir</button>
@@ -31,9 +30,19 @@ export const ui = {
             });
         } else {
             navRight.innerHTML = `
-                <a href="/login.html" class="btn btn-outline" style="margin-right: 0.5rem;">Iniciar Sesión</a>
+                <a href="/login.html" class="btn btn-primary" style="margin-right: 0.5rem;">Iniciar Sesión</a>
                 <a href="/login.html?modo=registro" class="btn btn-accent">Registrarme</a>
             `;
+        }
+        const btnHamburguesa = document.getElementById('btn-hamburguesa');
+        const navMenu = document.getElementById('nav-menu');
+
+        if (btnHamburguesa && navMenu) {
+            btnHamburguesa.onclick = null;
+
+            btnHamburguesa.onclick = () => {
+                navMenu.classList.toggle('activo');
+            };
         }
     },
     escapeHTML(str) {
