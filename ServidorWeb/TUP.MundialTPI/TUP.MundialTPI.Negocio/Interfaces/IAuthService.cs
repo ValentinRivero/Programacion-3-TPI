@@ -9,7 +9,7 @@ namespace TUP.MundialTPI.Negocio.Interfaces
     public interface IAuthService
     {
         Task<Usuario> RegisterAsync(RegisterDTO dto);
-        Task<string> LoginAsync(LoginDTO dto);
+        Task<(string Token, Usuario User)> LoginAsync(LoginDTO dto);
         Task<Usuario?> GetUserByEmailAsync(string email);
         Task<List<Usuario>> GetAllUsuariosAsync();
     }

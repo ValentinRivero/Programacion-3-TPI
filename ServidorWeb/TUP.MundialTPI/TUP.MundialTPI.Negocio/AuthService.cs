@@ -42,7 +42,7 @@ namespace TUP.MundialTPI.Negocio
             return user;
         }
 
-        public async Task<string> LoginAsync(LoginDTO dto)
+        public async Task<(string Token, Usuario User)> LoginAsync(LoginDTO dto)
         {
             var user = await _context.Usuarios.SingleOrDefaultAsync(u => u.Email == dto.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
@@ -70,7 +70,8 @@ namespace TUP.MundialTPI.Negocio
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            return (tokenString, user);
         }
 
         public async Task<Usuario?> GetUserByEmailAsync(string email)

@@ -74,3 +74,6 @@ docker-compose.override.yml
 # Temporary files
 *.tmp
 *.temp
+
+# Configuraciones locales
+appsettings.Development.json

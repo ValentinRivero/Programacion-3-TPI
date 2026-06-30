@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Mundial 2026</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
     <style>
@@ -347,8 +348,8 @@
             <form id="form-editar-partido">
                 <input type="hidden" id="edit-id">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <div class="form-group"><label>Local</label><input type="text" id="edit-local" required></div>
-                    <div class="form-group"><label>Visitante</label><input type="text" id="edit-visitante" required></div>
+                    <div class="form-group"><label>Equipo 1</label><input type="text" id="edit-local" required></div>
+                    <div class="form-group"><label>Equipo 2</label><input type="text" id="edit-visitante" required></div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div class="form-group">
@@ -397,11 +398,11 @@
             <form id="form-crear-partido">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div class="form-group">
-                        <label>Equipo Local</label>
+                        <label>Equipo 1</label>
                         <input type="text" id="crear-local" required placeholder="Ej: Argentina" maxlength="50">
                     </div>
                     <div class="form-group">
-                        <label>Equipo Visitante</label>
+                        <label>Equipo 2</label>
                         <input type="text" id="crear-visitante" required placeholder="Ej: Brasil" maxlength="50">
                     </div>
                 </div>

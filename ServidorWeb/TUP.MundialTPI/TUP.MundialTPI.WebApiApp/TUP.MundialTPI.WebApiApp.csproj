@@ -25,7 +25,6 @@
     <ProjectReference Include="..\TUP.MundialTPI.Negocio\TUP.MundialTPI.Negocio.csproj" />
   </ItemGroup>
     <ItemGroup>
-      <Folder Include="wwwroot\img\" />
       <Folder Include="wwwroot\res\" />
     </ItemGroup>
 

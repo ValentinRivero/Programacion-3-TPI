@@ -93,7 +93,7 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         public async Task<IActionResult> CrearPartido([FromBody] CrearPartidoDTO dto)
         {
             if (dto.EquipoLocal.Trim().ToLower() == dto.EquipoVisitante.Trim().ToLower())
-                return BadRequest(new { mensaje = "El equipo local y visitante no pueden ser el mismo país." });
+                return BadRequest(new { mensaje = "El equipo 1 y el equipo 2 no pueden ser el mismo país." });
 
             if (dto.FechaHora.Value < DateTime.UtcNow)
                 return BadRequest(new { mensaje = "No se pueden programar partidos en el pasado." });

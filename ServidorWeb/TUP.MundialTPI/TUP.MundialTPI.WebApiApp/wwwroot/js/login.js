@@ -9,7 +9,6 @@ const btnToggle = document.getElementById('btn-toggle-mode');
 const title = document.getElementById('form-title');
 const btnSubmit = document.getElementById('btn-submit');
 const groupNombre = document.getElementById('group-nombre');
-const errorMsg = document.getElementById('error-msg');
 
 btnToggle.addEventListener('click', () => {
     isLoginMode = !isLoginMode;
@@ -26,22 +25,21 @@ btnToggle.addEventListener('click', () => {
         groupNombre.style.display = 'block';
         document.getElementById('nombre').setAttribute('required', 'true');
     }
-    errorMsg.style.display = 'none';
 });
-
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    errorMsg.style.display = 'none';
     btnSubmit.disabled = true;
 
     // SANITIZACIÓN
     const emailRaw = document.getElementById('email').value;
     const emailClean = ui.sanitizeInput(emailRaw);
-    const password = document.getElementById('password').value;
+    const passwordInput = document.getElementById('password');
+    const password = passwordInput.value;
 
     try {
         if (isLoginMode) {
+
             const data = await api.fetch('/auth/login', {
                 method: 'POST',
                 body: JSON.stringify({ email: emailClean, password })
@@ -49,6 +47,7 @@ form.addEventListener('submit', async (e) => {
             auth.setSession(data.token, data.user);
             window.location.href = '/';
         } else {
+
             const nombreRaw = document.getElementById('nombre').value;
             const nombreClean = ui.sanitizeInput(nombreRaw);
 
@@ -57,13 +56,21 @@ form.addEventListener('submit', async (e) => {
                 body: JSON.stringify({ nombre: nombreClean, email: emailClean, password })
             });
 
-            alert('¡Cuenta creada! Ahora podés iniciar sesión.');
-            btnToggle.click();
+            ui.showToast('¡Cuenta creada con éxito! Ahora podés iniciar sesión.', 'success');
+
+            passwordInput.value = '';
+
+            setTimeout(() => {
+                btnToggle.click();
+            }, 1500);
         }
     } catch (error) {
-        const mensaje = error.message || "Error al iniciar sesión. Verificá tus datos.";
-        alert(mensaje);
-        console.error("Error de login:", error);
+        const mensaje = error.message || "Error de conexión con el servidor.";
+
+        ui.showToast(mensaje, 'error');
+
+        passwordInput.value = '';
+        console.error("[Auth Error]:", error);
     } finally {
         btnSubmit.disabled = false;
     }

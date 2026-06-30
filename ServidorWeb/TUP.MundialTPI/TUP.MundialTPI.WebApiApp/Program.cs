@@ -46,7 +46,6 @@ namespace TUP.MundialTPI.WebApiApp
             });
 
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
@@ -56,17 +55,16 @@ namespace TUP.MundialTPI.WebApiApp
             {
                 app.MapOpenApi();
             }
+            else
+            {
+                app.UseHttpsRedirection();
+            }
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-            //app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
 
             app.MapControllers();
 
