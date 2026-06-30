@@ -8,7 +8,7 @@ namespace TUP.MundialTPI.Negocio.Interfaces
 {
     public interface ITicketService
     {
-        Task<Ticket> ComprarAsync(int usuarioId, ComprarTicketDTO dto);
+        Task<List<Ticket>> ComprarAsync(int usuarioId, ComprarTicketDTO dto);
         Task<List<Ticket>> GetAllTicketsAsync();
         Task<IEnumerable<Ticket>> GetMisTicketsAsync(int usuarioId);
     }

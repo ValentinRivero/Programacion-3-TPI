@@ -36,11 +36,19 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         {
             try
             {
-                var token = await _authService.LoginAsync(dto);
-                var user = await _authService.GetUserByEmailAsync(dto.Email);
-                return Ok(new { 
-                    token, 
-                    user = new { id = user!.Id, nombre = user.Nombre, email = user.Email, rol = user.Rol } 
+                // Un solo viaje a la base de datos
+                var resultado = await _authService.LoginAsync(dto);
+
+                return Ok(new
+                {
+                    token = resultado.Token,
+                    user = new
+                    {
+                        id = resultado.User.Id,
+                        nombre = resultado.User.Nombre,
+                        email = resultado.User.Email,
+                        rol = resultado.User.Rol
+                    }
                 });
             }
             catch (Exception ex)

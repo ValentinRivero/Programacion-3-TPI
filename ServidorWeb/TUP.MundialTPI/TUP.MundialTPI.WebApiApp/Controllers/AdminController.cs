@@ -32,126 +32,214 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         public async Task<IActionResult> GetDashboardStats()
         {
             var totalUsuarios = await _context.Usuarios.CountAsync();
-            var totalTickets = await _context.Tickets.CountAsync();
-            var totalRecaudado = await _context.Tickets.SumAsync(t => (decimal?)t.Precio) ?? 0;
-            var partidosAgotados = await _context.Partidos.CountAsync(p => p.EntradasDisponibles == 0);
+            var usuariosSuspendidos = await _context.Usuarios.CountAsync(u => !u.Activo);
+
+            var ticketsValidos = await _context.Tickets.CountAsync(t => t.Activo);
+            var ticketsAnulados = await _context.Tickets.CountAsync(t => !t.Activo);
+            var totalRecaudado = await _context.Tickets.Where(t => t.Activo).SumAsync(t => (decimal?)t.Precio) ?? 0;
+
+            var partidosAgotados = await _context.Partidos.CountAsync(p => p.EntradasDisponibles == 0 && p.Estado != "Oculto");
+
+            var partidosPublicos = await _context.Partidos.Where(p => p.Estado != "Oculto").ToListAsync();
+            var capacidadTotal = partidosPublicos.Sum(p => p.EntradasMaximas > 0 ? p.EntradasMaximas : p.EntradasDisponibles);
+            var disponiblesTotal = partidosPublicos.Sum(p => p.EntradasDisponibles);
+            var porcentajeOcupacion = capacidadTotal > 0 ? Math.Round((double)(capacidadTotal - disponiblesTotal) / capacidadTotal * 100, 1) : 0;
 
             return Ok(new
             {
-                Usuarios = totalUsuarios,
-                Tickets = totalTickets,
+                UsuariosActivos = totalUsuarios - usuariosSuspendidos,
+                TicketsVendidos = ticketsValidos,
+                TicketsAnulados = ticketsAnulados,
                 Recaudacion = totalRecaudado,
-                Agotados = partidosAgotados
+                PartidosAgotados = partidosAgotados,
+                Ocupacion = porcentajeOcupacion
             });
         }
 
         // --- PARTIDOS ---
 
         [HttpGet("partidos")]
-        public async Task<IActionResult> GetPartidos()
+        public async Task<IActionResult> GetPartidosAdmin([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 15)
         {
-            var partidos = await _partidoService.GetAllAsync();
-            return Ok(partidos);
+            var query = _context.Partidos.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                bool esNumero = int.TryParse(search, out int searchId);
+
+                if (esNumero)
+                {
+                    query = query.Where(p => p.Id == searchId);
+                }
+                else
+                {
+                    query = query.Where(p => p.EquipoLocal.ToLower().Contains(search) ||
+                                             p.EquipoVisitante.ToLower().Contains(search) ||
+                                             p.Fase.ToLower().Contains(search));
+                }
+            }
+
+            var total = await query.CountAsync();
+            var items = await query.OrderByDescending(p => p.Id)
+                                   .Skip((page - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+
+            return Ok(new { items, total });
         }
 
         [HttpPost("partidos")]
-        public async Task<IActionResult> CrearPartido([FromBody] PartidoDTO dto)
+        public async Task<IActionResult> CrearPartido([FromBody] CrearPartidoDTO dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (dto.EquipoLocal.Trim().ToLower() == dto.EquipoVisitante.Trim().ToLower())
+                return BadRequest(new { mensaje = "El equipo 1 y el equipo 2 no pueden ser el mismo país." });
 
-            try
+            if (dto.FechaHora.Value < DateTime.UtcNow)
+                return BadRequest(new { mensaje = "No se pueden programar partidos en el pasado." });
+
+            var estadioExiste = await _context.Estadios.AnyAsync(e => e.Id == dto.EstadioId.Value);
+            if (!estadioExiste)
+                return BadRequest(new { mensaje = "El ID del estadio indicado no existe en la base de datos." });
+
+            var nuevoPartido = new Partido
             {
-                var partido = await _partidoService.CrearAsync(dto);
-                return CreatedAtAction(nameof(GetPartidos), new { id = partido.Id }, partido);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { mensaje = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Error interno del servidor", detalle = ex.Message });
-            }
+                EquipoLocal = dto.EquipoLocal.Trim(),
+                EquipoVisitante = dto.EquipoVisitante.Trim(),
+                Fase = dto.Fase.Trim(),
+                FechaHora = dto.FechaHora.Value.ToUniversalTime(),
+                EntradasMaximas = dto.EntradasDisponibles,
+                EntradasDisponibles = dto.EntradasDisponibles,
+                EstadioId = dto.EstadioId.Value,
+                Estado = "Oculto"
+            };
+
+            _context.Partidos.Add(nuevoPartido);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Partido programado correctamente.", id = nuevoPartido.Id });
         }
 
         [HttpPut("partidos/{id}")]
-        public async Task<IActionResult> EditarPartido(int id, [FromBody] PartidoDTO dto)
+        public async Task<IActionResult> EditarPartidoTotal(int id, [FromBody] EditarPartidoDTO dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var partido = await _context.Partidos.FindAsync(id);
+            if (partido == null) return NotFound(new { mensaje = "Partido no encontrado." });
 
-            try
-            {
-                var partido = await _partidoService.EditarAsync(id, dto);
-                return Ok(partido);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { mensaje = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { mensaje = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Error interno del servidor", detalle = ex.Message });
-            }
+            partido.EquipoLocal = dto.EquipoLocal.Trim();
+            partido.EquipoVisitante = dto.EquipoVisitante.Trim();
+            partido.Fase = dto.Fase.Trim();
+            partido.FechaHora = dto.FechaHora.Value.ToUniversalTime();
+            partido.EntradasDisponibles = dto.EntradasDisponibles;
+            partido.EstadioId = dto.EstadioId.Value;
+            partido.Estado = dto.Estado;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { mensaje = "Partido actualizado correctamente." });
         }
 
         [HttpDelete("partidos/{id}")]
         public async Task<IActionResult> EliminarPartido(int id)
         {
-            try
+            var partido = await _context.Partidos.FindAsync(id);
+            if (partido == null) return NotFound(new { mensaje = "Partido no encontrado." });
+
+            var tieneTicketsActivos = await _context.Tickets.AnyAsync(t => t.PartidoId == id && t.Activo);
+
+            if (tieneTicketsActivos)
             {
-                await _partidoService.EliminarAsync(id);
-                return Ok(new { mensaje = "Partido eliminado exitosamente" });
+                return BadRequest(new { mensaje = "No se puede eliminar: El partido tiene entradas válidas vendidas. Suspendelo, o anulá los tickets primero." });
             }
-            catch (KeyNotFoundException ex)
+
+            var ticketsInactivos = await _context.Tickets.Where(t => t.PartidoId == id).ToListAsync();
+            if (ticketsInactivos.Any())
             {
-                return NotFound(new { mensaje = ex.Message });
+                _context.Tickets.RemoveRange(ticketsInactivos);
             }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new { mensaje = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Error interno del servidor", detalle = ex.Message });
-            }
+
+            _context.Partidos.Remove(partido);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Partido eliminado definitivamente." });
         }
 
         // --- USUARIOS ---
 
         [HttpGet("usuarios")]
-        public async Task<IActionResult> GetUsuarios()
+        public async Task<IActionResult> GetUsuariosAdmin([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 15)
         {
-            var usuarios = await _authService.GetAllUsuariosAsync();
-            return Ok(usuarios);
+            var query = _context.Usuarios.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                bool esNumero = int.TryParse(search, out int searchId);
+
+                query = query.Where(u => (esNumero && u.Id == searchId) ||
+                                         (u.Nombre.ToLower().Contains(search.ToLower())) ||
+                                         (u.Email.ToLower().Contains(search.ToLower())));
+            }
+
+            var total = await query.CountAsync();
+            var items = await query.OrderByDescending(u => u.Id).Skip((page - 1) * pageSize).Take(pageSize)
+                .Select(u => new { id = u.Id, nombre = u.Nombre, email = u.Email, rol = u.Rol, activo = u.Activo })
+                .ToListAsync();
+
+            return Ok(new { items, total });
         }
 
         // --- TICKETS ---
 
         [HttpGet("tickets")]
-        public async Task<IActionResult> GetTickets()
+        public async Task<IActionResult> GetTicketsAdmin([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 15)
         {
-            var tickets = await _ticketService.GetAllTicketsAsync();
-            
-            // Proyectamos para evitar ciclos de referencia infinitos si el frontend no los maneja
-            var resultado = tickets.Select(t => new
-            {
-                t.Id,
-                t.PartidoId,
-                PartidoInfo = $"{t.Partido.EquipoLocal} vs {t.Partido.EquipoVisitante}",
-                t.UsuarioId,
-                UsuarioEmail = t.Usuario.Email,
-                t.TipoEntrada,
-                t.Precio,
-                t.FechaCompra
-            });
+            var query = _context.Tickets
+                .Include(t => t.Partido)
+                .Include(t => t.Usuario)
+                .AsQueryable();
 
-            return Ok(resultado);
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                bool esNumero = int.TryParse(search, out int searchId);
+
+                query = query.Where(t => (esNumero && t.Id == searchId) ||
+                                         (t.Usuario != null && t.Usuario.Email.ToLower().Contains(search)) ||
+                                         (t.Partido != null && t.Partido.EquipoLocal.ToLower().Contains(search)));
+            }
+
+            var total = await query.CountAsync();
+
+            var items = await query.OrderByDescending(t => t.Id).Skip((page - 1) * pageSize).Take(pageSize)
+                .Select(t => new {
+                    id = t.Id,
+                    partidoInfo = t.Partido != null ? t.Partido.EquipoLocal + " vs " + t.Partido.EquipoVisitante : "Partido Borrado",
+                    usuarioEmail = t.Usuario != null ? t.Usuario.Email : "Usuario Borrado",
+                    tipoEntrada = t.CategoriaId,
+                    precio = t.Precio,
+                    activo = t.Activo
+                }).ToListAsync();
+
+            return Ok(new { items, total });
+        }
+
+        [HttpPut("tickets/{id}/toggle")]
+        public async Task<IActionResult> AnularTicket(int id)
+        {
+            var ticket = await _context.Tickets
+                .Include(t => t.Partido)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (ticket == null) return NotFound("Ticket no encontrado");
+            if (!ticket.Activo) return BadRequest("El ticket ya fue anulado anteriormente.");
+
+            ticket.Activo = false;
+
+            ticket.Partido.EntradasDisponibles += 1;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { mensaje = "Ticket anulado y stock restaurado" });
         }
 
         // SUSPENDER / ACTIVAR USUARIO
@@ -169,16 +257,22 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
             return Ok(new { mensaje = usuario.Activo ? "Usuario reactivado" : "Usuario suspendido" });
         }
 
-        // SUSPENDER / ACTIVAR PARTIDO
-        [HttpPut("partidos/{id}/toggle-estado")]
-        public async Task<IActionResult> TogglePartidoEstado(int id)
+        // CAMBIAR ESTADO ESPECÍFICO DEL PARTIDO
+        [HttpPut("partidos/{id}/estado")]
+        public async Task<IActionResult> CambiarEstadoPartido(int id, [FromQuery] string nuevoEstado)
         {
             var partido = await _context.Partidos.FindAsync(id);
             if (partido == null) return NotFound(new { mensaje = "Partido no encontrado" });
 
-            partido.Estado = partido.Estado == "Activo" ? "Suspendido" : "Activo";
+            // Validar que el estado sea uno de los permitidos para evitar basura en la BD
+            var estadosPermitidos = new[] { "Activo", "En Juego", "Finalizado", "Suspendido" };
+            if (!estadosPermitidos.Contains(nuevoEstado))
+                return BadRequest(new { mensaje = "Estado no válido." });
+
+            partido.Estado = nuevoEstado;
             await _context.SaveChangesAsync();
-            return Ok(new { mensaje = $"Partido {partido.Estado.ToLower()}" });
+
+            return Ok(new { mensaje = $"Estado del partido actualizado a {nuevoEstado}" });
         }
 
     }

@@ -13,10 +13,17 @@ namespace TUP.MundialTPI.DatosEF
         public DbSet<Partido> Partidos { get; set; } = null!;
         public DbSet<Usuario> Usuarios { get; set; } = null!;
         public DbSet<Ticket> Tickets { get; set; } = null!;
+        public DbSet<CategoriaEntrada> CategoriasEntradas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<CategoriaEntrada>().HasData(
+                new CategoriaEntrada { Id = 1, Nombre = "Categoría 1", PrecioActual = 250m },
+                new CategoriaEntrada { Id = 2, Nombre = "Categoría 2", PrecioActual = 150m },
+                new CategoriaEntrada { Id = 3, Nombre = "Categoría 3", PrecioActual = 100m }
+            );
 
             // Relaciones
             modelBuilder.Entity<Partido>()

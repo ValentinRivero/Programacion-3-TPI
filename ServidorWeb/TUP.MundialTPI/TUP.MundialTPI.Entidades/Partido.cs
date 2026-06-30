@@ -13,7 +13,9 @@ namespace TUP.MundialTPI.Entidades
         public int EstadioId { get; set; }
         public Estadio Estadio { get; set; } = null!;
         public string Fase { get; set; } = string.Empty;
+        public int EntradasMaximas { get; set; }
         public int EntradasDisponibles { get; set; }
         public string Estado { get; set; } = "Activo";
+
     }
 }

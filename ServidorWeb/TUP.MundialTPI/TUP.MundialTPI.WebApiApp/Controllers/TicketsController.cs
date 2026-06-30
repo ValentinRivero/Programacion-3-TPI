@@ -20,22 +20,22 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpPost("comprar")]
         public async Task<IActionResult> Comprar([FromBody] ComprarTicketDTO dto)
         {
+            var claimId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(claimId)) return Unauthorized();
+
             try
             {
-                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized("Token inválido.");
-                
-                int usuarioId = int.Parse(userIdClaim);
-                var ticket = await _ticketService.ComprarAsync(usuarioId, dto);
-                return CreatedAtAction(nameof(Comprar), new { id = ticket.Id }, ticket);
+                var tickets = await _ticketService.ComprarAsync(int.Parse(claimId), dto);
+                return Ok(new
+                {
+                    mensaje = $"¡Compra exitosa! Adquiriste {tickets.Count} entrada(s).",
+                    ticketsIds = tickets.Select(t => t.Id).ToList()
+                });
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            catch (Exception ex) { return BadRequest(new { mensaje = ex.Message }); }
         }
 
         [Authorize]
@@ -43,14 +43,29 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
         public async Task<ActionResult> GetMisTickets()
         {
             var claimId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            if (claimId == null)
-            {
-                return Unauthorized(new { mensaje = "Token inválido o sin ID de usuario." });
-            }
+            if (string.IsNullOrEmpty(claimId)) return Unauthorized();
 
             var tickets = await _ticketService.GetMisTicketsAsync(int.Parse(claimId));
-            return Ok(tickets);
+
+            var response = tickets.Select(t => new {
+                id = t.Id,
+                tipoEntrada = t.CategoriaId,
+                activo = t.Activo,
+                partido = new
+                {
+                    equipoLocal = t.Partido.EquipoLocal,
+                    equipoVisitante = t.Partido.EquipoVisitante,
+                    fase = t.Partido.Fase,
+                    fechaHora = t.Partido.FechaHora,
+                    estadio = t.Partido.Estadio != null ? new
+                    {
+                        nombre = t.Partido.Estadio.Nombre,
+                        ciudad = t.Partido.Estadio.Ciudad
+                    } : null
+                }
+            });
+
+            return Ok(response);
         }
     }
 }
