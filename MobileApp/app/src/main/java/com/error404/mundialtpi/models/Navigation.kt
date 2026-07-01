@@ -15,7 +15,4 @@ object DestinoLogin
 object DestinoRegistro
 
 @Serializable
-data class DestinoCompra(val partidoId: Int)
-
-@Serializable
 object DestinoMisTickets

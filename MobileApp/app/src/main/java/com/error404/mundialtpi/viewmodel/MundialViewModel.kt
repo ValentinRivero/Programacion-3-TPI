@@ -16,7 +16,6 @@ class MundialViewModel(private val repository: MundialRepository) : ViewModel() 
     var partidosLista by mutableStateOf<List<DTOPartidosLista>>(emptyList())
         private set
 
-    //Agregamos un estado para el partido seleccionado
     var partidoSeleccionado by mutableStateOf<DTOPartidosDetalle?>(null)
         private set
 

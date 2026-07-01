@@ -19,13 +19,13 @@ interface MundialAPIService {
     @GET("partidos/{id}")
     suspend fun getPartidosDetalle(@Path("id") id: Int): DTOPartidosDetalle
 
-    @POST("Auth/login")
+    @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 
-    @POST("Auth/register")
+    @POST("auth/register")
     suspend fun registro(@Body request: RegistroRequest): RegistroResponse
 
-    @POST("tickets")
+    @POST("tickets/comprar")
     suspend fun comprarTicket(
         @retrofit2.http.Header("Authorization") token: String,
         @Body request: com.error404.mundialtpi.models.ComprarTicketRequest
