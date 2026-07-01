@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ComprarTicketRequest(
     val partidoId: Int,
-    val tipoEntrada: String,
+    val categoriaId: Int,
     val cantidad: Int
 )
 

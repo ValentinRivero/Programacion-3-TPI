@@ -1,15 +1,22 @@
 package com.error404.mundialtpi.utils
 
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-fun formatDateTime(rawDate: String): Pair<String, String> {
+fun formatDateTime(fechaIso: String): Pair<String, String> {
     return try {
-        val parsedDate = LocalDateTime.parse(rawDate)
-        val datePart = parsedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        val timePart = parsedDate.format(DateTimeFormatter.ofPattern("HH:mm"))
-        Pair(datePart, timePart)
+        val fechaLimpia = fechaIso.substringBefore(".").substringBefore("Z")
+        val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        val date = parser.parse(fechaLimpia)
+
+        if (date != null) {
+            val formatterFecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val formatterHora = SimpleDateFormat("HH:mm", Locale.getDefault())
+            Pair(formatterFecha.format(date), formatterHora.format(date))
+        } else {
+            Pair("Fecha a confirmar", "--:--")
+        }
     } catch (e: Exception) {
-        Pair(rawDate, "--:--")
+        Pair(fechaIso.substringBefore("T"), fechaIso.substringAfter("T").take(5))
     }
 }

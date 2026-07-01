@@ -23,15 +23,19 @@ sealed class TicketState {
 class TicketViewModel(private val repository: TicketRepository) : ViewModel() {
     private val _ticketState = MutableStateFlow<TicketState>(TicketState.Idle)
     val ticketState: StateFlow<TicketState> = _ticketState.asStateFlow()
+
     var misTicketsLista by mutableStateOf<List<DTOMisTickets>>(emptyList())
         private set
     var isLoadingTickets by mutableStateOf(false)
         private set
 
-    fun comprarTicket(partidoId: Int, tipo: String, cantidad: Int) {
+    var errorTickets by mutableStateOf<String?>(null)
+        private set
+
+    fun comprarTicket(partidoId: Int, categoriaId: Int, cantidad: Int) {
         viewModelScope.launch {
             _ticketState.value = TicketState.Loading
-            val result = repository.comprarTicket(partidoId, tipo, cantidad)
+            val result = repository.comprarTicket(partidoId, categoriaId, cantidad)
             if (result.isSuccess) {
                 _ticketState.value = TicketState.Success(result.getOrThrow())
             } else {
@@ -43,11 +47,13 @@ class TicketViewModel(private val repository: TicketRepository) : ViewModel() {
     fun cargarMisTickets() {
         viewModelScope.launch {
             isLoadingTickets = true
+            errorTickets = null
             val result = repository.getMisTickets()
             if (result.isSuccess) {
                 misTicketsLista = result.getOrDefault(emptyList())
             } else {
                 misTicketsLista = emptyList()
+                errorTickets = result.exceptionOrNull()?.message ?: "Error de conexión con el servidor"
             }
             isLoadingTickets = false
         }

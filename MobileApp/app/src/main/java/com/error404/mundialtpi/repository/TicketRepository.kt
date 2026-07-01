@@ -9,14 +9,14 @@ class TicketRepository(
     private val api: MundialAPIService,
     private val tokenManager: TokenManager
 ) {
-    suspend fun comprarTicket(partidoId: Int, tipo: String, cantidad: Int): Result<TicketResponse> {
+    suspend fun comprarTicket(partidoId: Int, categoriaId: Int, cantidad: Int): Result<TicketResponse> {
         val token = tokenManager.getToken() ?: return Result.failure(Exception("No autenticado"))
         val bearerToken = "Bearer $token"
-        
+
         return try {
             val response = api.comprarTicket(
                 bearerToken,
-                ComprarTicketRequest(partidoId, tipo, cantidad)
+                ComprarTicketRequest(partidoId, categoriaId, cantidad)
             )
             Result.success(response)
         } catch (e: Exception) {

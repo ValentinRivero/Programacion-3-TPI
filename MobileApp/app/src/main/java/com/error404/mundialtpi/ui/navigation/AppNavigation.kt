@@ -9,12 +9,10 @@ import com.error404.mundialtpi.models.DestinoDetalle
 import com.error404.mundialtpi.models.DestinoLista
 import com.error404.mundialtpi.models.DestinoLogin
 import com.error404.mundialtpi.models.DestinoRegistro
-import com.error404.mundialtpi.models.DestinoCompra
 import com.error404.mundialtpi.ui.screens.PantallaDetalle
 import com.error404.mundialtpi.ui.screens.PantallaLista
 import com.error404.mundialtpi.ui.screens.PantallaLogin
 import com.error404.mundialtpi.ui.screens.PantallaRegistro
-import com.error404.mundialtpi.ui.screens.PantallaCompra
 import com.error404.mundialtpi.viewmodel.AuthViewModel
 import com.error404.mundialtpi.viewmodel.MundialViewModel
 import com.error404.mundialtpi.viewmodel.TicketViewModel
@@ -30,7 +28,6 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
 
-    // Start in Login if not logged in
     val startDest = if (authViewModel.isLoggedIn) DestinoLista else DestinoLogin
 
     NavHost(navController = navController, startDestination = startDest) {
@@ -52,22 +49,15 @@ fun AppNavigation(
             PantallaDetalle(
                 partidoId = ruta.partidoId,
                 viewModel = viewModel,
+                ticketViewModel = ticketViewModel,
                 navController = navController,
                 onBack = { navController.popBackStack() }
-            )
-        }
-        composable<DestinoCompra> { backStackEntry ->
-            val ruta = backStackEntry.toRoute<DestinoCompra>()
-            PantallaCompra(
-                partidoId = ruta.partidoId,
-                viewModel = ticketViewModel,
-                navController = navController
             )
         }
         composable<DestinoMisTickets> {
             PantallaMisTickets(
                 viewModel = ticketViewModel,
-                onBack = { navController.popBackStack() }
+                navController = navController
             )
         }
     }
