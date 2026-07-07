@@ -40,12 +40,14 @@ namespace TUP.MundialTPI.WebApiApp.Controllers
 
         [Authorize]
         [HttpGet("mis-tickets")]
-        public async Task<ActionResult> GetMisTickets()
+        public async Task<ActionResult> GetMisTickets([FromQuery] int pagina = 1, [FromQuery] int cantidad = 15)
         {
             var claimId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(claimId)) return Unauthorized();
+            if (pagina < 1) pagina = 1;
+            if (cantidad < 1) cantidad = 15;
 
-            var tickets = await _ticketService.GetMisTicketsAsync(int.Parse(claimId));
+            var tickets = await _ticketService.GetMisTicketsAsync(int.Parse(claimId), pagina, cantidad);
 
             var response = tickets.Select(t => new {
                 id = t.Id,

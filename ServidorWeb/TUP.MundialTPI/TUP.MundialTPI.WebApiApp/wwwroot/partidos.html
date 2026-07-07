@@ -6,7 +6,7 @@
     <title>Partidos - Mundial 2026</title>
     <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/main.css?v=2.0">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
     <header class="navbar bg-primary-dark shadow-sm">
@@ -29,11 +29,15 @@
 
     <main class="container">
         <h2 style="margin-top: 2rem; color: var(--color-primary-dark); font-size: 2rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 1rem;">Catálogo de Partidos</h2>
+        <input type="text" id="search-partidos" placeholder="Buscar por país, fase o estadio..." style="width: 100%; box-sizing: border-box; padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.3s; font-family: 'Inter', sans-serif;" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='#eee'">
+
         <div id="matches-container" class="matches-grid">
             <p>Cargando partidos...</p>
         </div>
     </main>
 
+    <script type="module" src="js/partidos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script type="module" src="js/partidos.js"></script>
 </body>
 </html>

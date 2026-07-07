@@ -19,6 +19,7 @@ import com.error404.mundialtpi.viewmodel.TicketViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.error404.mundialtpi.models.DestinoMisTickets
 import com.error404.mundialtpi.ui.screens.PantallaMisTickets
+import androidx.lifecycle.Lifecycle
 
 @Composable
 fun AppNavigation(
@@ -50,13 +51,19 @@ fun AppNavigation(
                 partidoId = ruta.partidoId,
                 viewModel = viewModel,
                 ticketViewModel = ticketViewModel,
+                authViewModel = authViewModel,
                 navController = navController,
-                onBack = { navController.popBackStack() }
+                onBack = {
+                    if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+                        navController.popBackStack()
+                    }
+                }
             )
         }
         composable<DestinoMisTickets> {
             PantallaMisTickets(
                 viewModel = ticketViewModel,
+                authViewModel = authViewModel,
                 navController = navController
             )
         }

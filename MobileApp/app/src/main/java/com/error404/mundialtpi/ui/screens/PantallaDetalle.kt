@@ -21,8 +21,11 @@ import com.error404.mundialtpi.utils.formatDateTime
 import com.error404.mundialtpi.viewmodel.MundialViewModel
 import com.error404.mundialtpi.viewmodel.TicketState
 import com.error404.mundialtpi.viewmodel.TicketViewModel
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.error404.mundialtpi.viewmodel.AuthViewModel
+import com.error404.mundialtpi.models.DestinoLogin
 
-// Definimos la estructura como en tu web (ID, Nombre, Precio)
 data class OpcionEntrada(val id: Int, val nombre: String, val precio: Int)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,12 +34,14 @@ fun PantallaDetalle(
     partidoId: Int,
     viewModel: MundialViewModel,
     ticketViewModel: TicketViewModel,
+    authViewModel: AuthViewModel,
     navController: NavController,
     onBack: () -> Unit
 ) {
     var cantidad by remember { mutableStateOf(1) }
 
-    // Armamos la lista con los IDs reales de la base de datos
+    val context = LocalContext.current
+
     val opcionesEntradas = listOf(
         OpcionEntrada(1, "Categoría 1 - Laterales", 250),
         OpcionEntrada(2, "Categoría 2 - Córners", 150),
@@ -46,27 +51,20 @@ fun PantallaDetalle(
     var categoriaSeleccionada by remember { mutableStateOf(opcionesEntradas[0]) }
     var expanded by remember { mutableStateOf(false) }
 
-    var showDialog by remember { mutableStateOf(false) }
-    var dialogMessage by remember { mutableStateOf("") }
-
     val ticketState by ticketViewModel.ticketState.collectAsState()
+
+    LaunchedEffect(authViewModel.isLoggedIn) {
+        if (!authViewModel.isLoggedIn) {
+            Toast.makeText(context, "Tu sesión expiró. Por favor, volvé a ingresar.", Toast.LENGTH_LONG).show()
+            navController.navigate(DestinoLogin) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     LaunchedEffect(partidoId) {
         viewModel.cargarPartidoDetalle(partidoId)
-    }
-
-    LaunchedEffect(ticketState) {
-        when (ticketState) {
-            is TicketState.Success -> {
-                dialogMessage = "¡Compra confirmada! Adquiriste $cantidad entrada(s) para el sector ${categoriaSeleccionada.nombre.split(" -")[0]}. Total: $${categoriaSeleccionada.precio * cantidad} USD."
-                showDialog = true
-            }
-            is TicketState.Error -> {
-                dialogMessage = "Error: ${(ticketState as TicketState.Error).message}"
-                showDialog = true
-            }
-            else -> {}
-        }
     }
 
     val partido = viewModel.partidoSeleccionado
@@ -94,7 +92,6 @@ fun PantallaDetalle(
                     modifier = Modifier.fillMaxSize().padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // SECCIÓN 1: CABECERA DEL PARTIDO
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -129,7 +126,6 @@ fun PantallaDetalle(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // SECCIÓN 2: FORMULARIO DE COMPRA
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -215,7 +211,6 @@ fun PantallaDetalle(
 
                             Button(
                                 onClick = {
-                                    // MANDAMOS EL ID NUMÉRICO (1, 2 o 3)
                                     ticketViewModel.comprarTicket(partidoId, categoriaSeleccionada.id, cantidad)
                                 },
                                 modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -236,28 +231,50 @@ fun PantallaDetalle(
         }
     }
 
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                showDialog = false
-                ticketViewModel.resetState()
-            },
-            title = { Text("Estado de Compra") },
-            text = { Text(dialogMessage) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDialog = false
-                    ticketViewModel.resetState()
-                    if (ticketState is TicketState.Success) {
-                        navController.navigate(com.error404.mundialtpi.models.DestinoMisTickets) {
-                            // Borramos la pantalla de compra, pero mantenemos viva la Lista principal
-                            popUpTo(com.error404.mundialtpi.models.DestinoLista) { inclusive = false }
+//POPUPS
+
+    when (val state = ticketState) {
+        is TicketState.Success -> {
+            AlertDialog(
+                onDismissRequest = { ticketViewModel.resetState() },
+                icon = { Text("🎟️", fontSize = 32.sp) },
+                title = { Text(text = "¡Compra Exitosa!", fontWeight = FontWeight.Bold) },
+                text = {
+                    Text(
+                        "Adquiriste $cantidad entrada(s) para el sector ${categoriaSeleccionada.nombre.split(" -")[0]}. Total: $${categoriaSeleccionada.precio * cantidad} USD.\n\nTus entradas ya están guardadas de forma segura en tu cuenta.",
+                        fontSize = 16.sp
+                    )
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        ticketViewModel.resetState()
+                        navController.navigate(DestinoMisTickets) {
+                            popUpTo<com.error404.mundialtpi.models.DestinoLista> { inclusive = false }
                         }
+                    }) {
+                        Text("Ir a Mis Entradas")
                     }
-                }) {
-                    Text("Aceptar")
+                },
+                dismissButton = {
+                    TextButton(onClick = { ticketViewModel.resetState() }) {
+                        Text("Cerrar")
+                    }
                 }
-            }
-        )
+            )
+        }
+        is TicketState.Error -> {
+            AlertDialog(
+                onDismissRequest = { ticketViewModel.resetState() },
+                title = { Text("Error en la compra") },
+                text = { Text(state.message) },
+                confirmButton = {
+                    TextButton(onClick = { ticketViewModel.resetState() }) {
+                        Text("Aceptar")
+                    }
+                }
+            )
+        }
+        else -> {
+        }
     }
 }

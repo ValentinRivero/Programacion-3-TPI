@@ -48,6 +48,9 @@ import com.error404.mundialtpi.models.DestinoMisTickets
 import com.error404.mundialtpi.ui.components.MatchCard
 import com.error404.mundialtpi.viewmodel.AuthViewModel
 import com.error404.mundialtpi.viewmodel.MundialViewModel
+import androidx.compose.runtime.collectAsState
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +60,18 @@ fun PantallaLista(
     navController: NavController
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
+
+    LaunchedEffect(authViewModel.isLoggedIn) {
+        if (!authViewModel.isLoggedIn) {
+            Toast.makeText(context, "Tu sesión expiró. Por favor, volvé a ingresar.", Toast.LENGTH_LONG).show()
+            navController.navigate(DestinoLogin) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.cargarPartidos()
@@ -82,7 +97,7 @@ fun PantallaLista(
                 actions = {
                     IconButton(onClick = { viewModel.toggleTheme() }) {
                         Icon(
-                            imageVector = if (viewModel.isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
+                            imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
                             contentDescription = "Cambiar modo"
                         )
                     }
@@ -110,9 +125,6 @@ fun PantallaLista(
                         onClick = {
                             authViewModel.logout()
                             viewModel.limpiarDetalle()
-                            navController.navigate(DestinoLogin) {
-                                popUpTo(0) { inclusive = true }
-                            }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                     ) {

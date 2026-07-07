@@ -1,5 +1,6 @@
 ﻿import { auth } from './auth.js';
 import { obtenerUrlBandera } from './banderas.js';
+
 export const ui = {
     setupNavbar() {
         const navLeft = document.getElementById('nav-left');
@@ -15,25 +16,103 @@ export const ui = {
             let linksIzquierda = `<a href="/mis_tickets.html" class="nav-link">Mis Entradas</a>`;
 
             if (user && user.rol === 'admin') {
-                linksIzquierda += `<a href="/admin.html" class="nav-link" style="color: var(--color-accent); font-weight: 800; margin-left: 1rem;">Panel Admin</a>`;
+                if (!navLeft.innerHTML.includes('admin.html')) {
+                    linksIzquierda += `<a href="/admin.html" class="nav-link" style="color: var(--color-accent); font-weight: 800; margin-left: 1rem;">Panel Admin</a>`;
+                }
             }
 
-            navLeft.innerHTML += linksIzquierda;
+            if (!navLeft.innerHTML.includes('mis_tickets.html')) {
+                navLeft.innerHTML += linksIzquierda;
+            }
 
             navRight.innerHTML = `
-                <span style="font-weight: 600; color: white; margin-right: 1.5rem;">Hola, ${this.escapeHTML(user.nombre)}</span>
-                <button id="btn-logout" class="btn btn-error">Salir</button>
+                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                    <span style="font-weight: 600; color: white; margin-right: 0.5rem;">Hola, ${this.escapeHTML(user.nombre)}</span>
+                    
+                    <button id="btn-qr-login" class="btn" style="background-color: #3498db; color: white; border: none; display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 1rem;">
+                        📱 QR
+                    </button>
+                    
+                    <button id="btn-logout" class="btn btn-error" style="display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 1rem;">
+                        Salir
+                    </button>
+                </div>
             `;
+
             document.getElementById('btn-logout').addEventListener('click', () => {
                 auth.clearSession();
                 window.location.reload();
             });
+
+            const btnQr = document.getElementById('btn-qr-login');
+            if (btnQr) {
+                btnQr.addEventListener('click', () => {
+                    const token = auth.getToken();
+                    const user = auth.getUser();
+
+                    if (!token || !user) {
+                        ui.showToast("Error: No se encontró la sesión.", "error");
+                        return;
+                    }
+
+                    const qrData = JSON.stringify({
+                        token: token,
+                        nombre: user.nombre
+                    });
+
+                    const overlay = document.createElement('div');
+                    Object.assign(overlay.style, {
+                        position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+                        background: 'rgba(15, 23, 42, 0.7)', display: 'flex', justifyContent: 'center',
+                        alignItems: 'center', zIndex: '9999', backdropFilter: 'blur(3px)',
+                        opacity: '0', transition: 'opacity 0.2s ease'
+                    });
+
+                    const modal = document.createElement('div');
+                    Object.assign(modal.style, {
+                        background: 'white', padding: '2.5rem', borderRadius: '16px',
+                        textAlign: 'center', boxShadow: '0 20px 25px rgba(0,0,0,0.2)',
+                        transform: 'scale(0.9)', transition: 'transform 0.2s ease'
+                    });
+
+                    modal.innerHTML = `
+                        <h3 style="color: var(--color-primary-dark); margin-bottom: 0.5rem; font-size: 1.5rem; font-weight: 800;">Ingreso Rápido</h3>
+                        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">Escaneá este código con la cámara<br>de la app móvil para entrar.</p>
+                        <div id="qr-contenedor" style="display: flex; justify-content: center; margin-bottom: 1.5rem; padding: 1rem; background: white; border: 2px solid #eee; border-radius: 12px;"></div>
+                        <button id="btn-cerrar-qr" class="btn btn-secondary" style="width: 100%;">Cerrar</button>
+                    `;
+
+                    overlay.appendChild(modal);
+                    document.body.appendChild(overlay);
+
+                    requestAnimationFrame(() => {
+                        overlay.style.opacity = '1';
+                        modal.style.transform = 'scale(1)';
+                    });
+
+                    new QRCode(document.getElementById("qr-contenedor"), {
+                        text: qrData, 
+                        width: 300,
+                        height: 300,
+                        colorDark: "#1e293b",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+
+                    document.getElementById('btn-cerrar-qr').addEventListener('click', () => {
+                        overlay.style.opacity = '0';
+                        modal.style.transform = 'scale(0.9)';
+                        setTimeout(() => document.body.removeChild(overlay), 200);
+                    });
+                });
+            }
         } else {
             navRight.innerHTML = `
                 <a href="/login.html" class="btn btn-primary" style="margin-right: 0.5rem;">Iniciar Sesión</a>
                 <a href="/login.html?modo=registro" class="btn btn-accent">Registrarme</a>
             `;
         }
+
         const btnHamburguesa = document.getElementById('btn-hamburguesa');
         const navMenu = document.getElementById('nav-menu');
 
@@ -45,30 +124,31 @@ export const ui = {
             };
         }
     },
+
     escapeHTML(str) {
         if (!str) return '';
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
     },
+
     sanitizeInput(str) {
         if (!str) return '';
         return str.replace(/[^\w\s@.,áéíóúÁÉÍÓÚñÑ\-]/gi, '').trim();
     },
+
     createMatchCard(partido) {
         const local = this.escapeHTML(partido.equipoLocal);
         const visitante = this.escapeHTML(partido.equipoVisitante);
         const fase = this.escapeHTML(partido.fase);
         const agotado = partido.entradasDisponibles === 0;
 
-        // ACÁ USAMOS NUESTRO NUEVO MÓDULO
         const urlBanderaL = obtenerUrlBandera(local);
         const urlBanderaV = obtenerUrlBandera(visitante);
 
         const article = document.createElement('article');
         article.className = 'card shadow-md';
 
-        // Y en las imágenes, simplemente inyectamos la variable
         article.innerHTML = `
             <div style="position: relative; height: 160px; display: flex; background: #eee; overflow: hidden;">
                 <span class="phase-badge">${fase}</span>
@@ -88,22 +168,6 @@ export const ui = {
         return article;
     },
 
-    // --- NUEVO: SISTEMA DE ALERTAS Y CONFIRMACIONES GLOBALES ---
-
-//    Para mostrar éxito al guardar algo:
-//        ui.showToast("Datos guardados");
-
-//    Para mostrar un error atrapado en un catch:
-//        ui.showToast(error.message, "error");
-
-//    Para un mensaje informativo:
-//        ui.showToast("Cargando nuevos datos...", "info");
-
-//    Para proteger una acción:
-//      const seguro = await ui.confirm("¿Vaciar carrito?");
-//    if(seguro) { ... }
-
-    // Toats
     showToast(mensaje, tipo = 'success') {
         let container = document.getElementById('toast-container');
         if (!container) {
@@ -220,5 +284,4 @@ export const ui = {
         const [dia, mes, anio] = fecha.split('/');
         return `${anio}-${mes}-${dia}T${hora}`;
     }
-
-}; 
+};

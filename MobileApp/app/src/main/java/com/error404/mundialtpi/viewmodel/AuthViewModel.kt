@@ -24,24 +24,50 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
-    var isLoggedIn by mutableStateOf(repository.isLoggedIn())
+    var isLoggedIn by mutableStateOf(false)
         private set
 
-    var nombreUsuario by mutableStateOf(repository.getNombreUsuario())
+    var nombreUsuario by mutableStateOf("Usuario")
         private set
+
+    init {
+        viewModelScope.launch {
+            repository.isLoggedInFlow().collect { status ->
+                isLoggedIn = status
+            }
+        }
+        viewModelScope.launch {
+            repository.getNombreUsuarioFlow().collect { nombre ->
+                nombreUsuario = nombre
+            }
+        }
+    }
 
     fun login(email: String, contrasena: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             val result = repository.login(LoginRequest(email, password = contrasena))
             if (result.isSuccess) {
-                isLoggedIn = true
-                val response = result.getOrNull()
-                nombreUsuario = response?.user?.nombre ?: "Usuario"
-
                 _authState.value = AuthState.Success
             } else {
                 _authState.value = AuthState.Error(result.exceptionOrNull()?.message ?: "Error de login")
+            }
+        }
+    }
+
+    fun loginConQR(qrDataStr: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            try {
+                val jsonObject = org.json.JSONObject(qrDataStr)
+                val token = jsonObject.getString("token")
+                val nombre = jsonObject.getString("nombre")
+
+                repository.guardarToken(token, nombre)
+
+                _authState.value = AuthState.Success
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error("Formato de QR incorrecto")
             }
         }
     }
@@ -59,9 +85,9 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
     }
 
     fun logout() {
-        repository.logout()
-        isLoggedIn = false
-        nombreUsuario = "Usuario"
+        viewModelScope.launch {
+            repository.logout()
+        }
     }
 
     fun resetState() {

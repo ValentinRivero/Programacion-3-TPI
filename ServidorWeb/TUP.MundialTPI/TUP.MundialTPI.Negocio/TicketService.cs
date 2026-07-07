@@ -53,15 +53,21 @@ namespace TUP.MundialTPI.Negocio
                 .Include(t => t.Usuario)
                 .ToListAsync();
         }
-        public async Task<IEnumerable<Ticket>> GetMisTicketsAsync(int usuarioId)
+        public async Task<IEnumerable<Ticket>> GetMisTicketsAsync(int usuarioId, int pagina = 1, int cantidad = 15)
         {
-            var tickets = await _context.Tickets
+            var query = _context.Tickets
                 .Include(t => t.Partido)
                 .ThenInclude(p => p.Estadio)
                 .Where(t => t.UsuarioId == usuarioId)
+                .OrderByDescending(t => t.FechaCompra)
+                .AsQueryable();
+
+            var ticketsPaginados = await query
+                .Skip((pagina - 1) * cantidad)
+                .Take(cantidad)
                 .ToListAsync();
 
-            return tickets;
+            return ticketsPaginados;
         }
     }
 }

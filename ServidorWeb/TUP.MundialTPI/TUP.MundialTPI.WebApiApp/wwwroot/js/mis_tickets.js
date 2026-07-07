@@ -2,7 +2,9 @@
 import { auth } from './auth.js';
 import { ui } from './ui.js';
 
-// 1. Maquetado de la tarjeta
+let paginaActual = 1;
+const cantidadPorPagina = 15;
+
 function createTicketCard(ticket) {
     const p = ticket.partido;
     if (!p) return document.createElement('div');
@@ -13,24 +15,20 @@ function createTicketCard(ticket) {
     const tipo = ui.escapeHTML(ticket.tipoEntrada);
     const esValido = ticket.activo !== false;
 
-    // Armado inteligente de la ubicación
     let ubicacion = 'Estadio a definir';
     if (p.estadio && p.estadio.nombre) {
         ubicacion = ui.escapeHTML(p.estadio.nombre);
         if (p.estadio.ciudad) ubicacion += `, ${ui.escapeHTML(p.estadio.ciudad)}`;
     }
 
-    // Formateo de Fecha y Hora (transforma la UTC a la hora de tu compu)
     let fechaStr = 'Fecha a confirmar';
     if (p.fechaHora) {
         const fecha = new Date(p.fechaHora);
-        // Formato: 15/07/2026 - 18:00 hs
         fechaStr = fecha.toLocaleDateString('es-AR') + ' - ' + fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' hs';
     }
 
     const article = document.createElement('article');
     article.className = 'card shadow-sm';
-
     Object.assign(article.style, {
         display: 'flex', flexDirection: 'row', overflow: 'hidden', position: 'relative',
         borderLeft: esValido ? '6px solid var(--color-accent)' : '6px solid var(--color-error)'
@@ -63,18 +61,15 @@ function createTicketCard(ticket) {
             <h3 style="font-size: 1.5rem; color: var(--color-primary-dark); font-weight: 900; margin: 0.5rem 0;">
                 ${local} vs ${visitante}
             </h3>
-            
             <div style="margin-top: 0.5rem; color: var(--color-text-primary); font-size: 0.95rem; display: flex; flex-direction: column; gap: 0.3rem;">
                 <span><strong>📅 Fecha:</strong> ${fechaStr}</span>
                 <span><strong>🏟 Estadio:</strong> ${ubicacion}</span>
             </div>
-            
         </div>
         <div style="padding: 1.5rem; background-color: var(--color-bg); border-left: 2px dashed rgba(0,0,0,0.1); min-width: 200px; display: flex; flex-direction: column; justify-content: center; text-align: center; z-index: 2;">
             ${infoAcceso}
         </div>
     `;
-
     return article;
 }
 
@@ -86,17 +81,24 @@ async function cargarMisTickets() {
         return;
     }
 
+    container.innerHTML = '<p>Buscando tus tickets seguros...</p>';
+
     try {
-        const tickets = await api.fetch('/tickets/mis-tickets');
+        const tickets = await api.fetch(`/tickets/mis-tickets?pagina=${paginaActual}&cantidad=${cantidadPorPagina}`);
         container.innerHTML = '';
 
         if (!tickets || tickets.length === 0) {
-            container.innerHTML = `
-                <div style="text-align: center; padding: 4rem; background: white; border-radius: 12px;" class="shadow-sm">
-                    <p style="font-size: 1.2rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">Aún no tenés entradas compradas.</p>
-                    <a href="/partidos.html" class="btn btn-primary">Ver catálogo de partidos</a>
-                </div>
-            `;
+            if (paginaActual === 1) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 4rem; background: white; border-radius: 12px;" class="shadow-sm">
+                        <p style="font-size: 1.2rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">Aún no tenés entradas compradas.</p>
+                        <a href="/partidos.html" class="btn btn-primary">Ver catálogo de partidos</a>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<p style="text-align: center; color: #666;">No hay más entradas para mostrar.</p>';
+            }
+            renderizarPaginacion(0);
             return;
         }
 
@@ -105,9 +107,59 @@ async function cargarMisTickets() {
             container.appendChild(card);
         });
 
+        const inputBusqueda = document.getElementById('search-tickets');
+        if (inputBusqueda) {
+            inputBusqueda.addEventListener('input', (e) => {
+                const texto = e.target.value.toLowerCase();
+                const tarjetas = container.querySelectorAll('.card');
+                tarjetas.forEach(tarjeta => {
+                    const contenidoVisible = tarjeta.innerText.toLowerCase();
+                    tarjeta.style.display = contenidoVisible.includes(texto) ? 'flex' : 'none';
+                });
+            });
+        }
+
+        renderizarPaginacion(tickets.length);
+
     } catch (error) {
         container.innerHTML = `<p class="text-error">Error al cargar tus tickets: ${ui.escapeHTML(error.message)}</p>`;
     }
+}
+
+function renderizarPaginacion(cantidadResultados) {
+    let pagContainer = document.getElementById('pagination-tickets');
+
+    if (!pagContainer) {
+        pagContainer = document.createElement('div');
+        pagContainer.id = 'pagination-tickets';
+        Object.assign(pagContainer.style, {
+            display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', marginTop: '2rem', paddingBottom: '2rem'
+        });
+        document.querySelector('main.container').appendChild(pagContainer);
+    }
+
+    const prevDisabled = paginaActual === 1;
+    const nextDisabled = cantidadResultados < cantidadPorPagina;
+
+    pagContainer.innerHTML = `
+        <button id="btn-prev-ticket" class="btn btn-secondary" style="${prevDisabled ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${prevDisabled ? 'disabled' : ''}>← Anterior</button>
+        <span style="font-weight: 800; color: var(--color-primary-dark); font-size: 1.1rem;">Página ${paginaActual}</span>
+        <button id="btn-next-ticket" class="btn btn-secondary" style="${nextDisabled ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${nextDisabled ? 'disabled' : ''}>Siguiente →</button>
+    `;
+
+    document.getElementById('btn-prev-ticket').addEventListener('click', () => {
+        if (!prevDisabled) {
+            paginaActual--;
+            cargarMisTickets();
+        }
+    });
+
+    document.getElementById('btn-next-ticket').addEventListener('click', () => {
+        if (!nextDisabled) {
+            paginaActual++;
+            cargarMisTickets();
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,13 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarMisTickets();
 
     const btnImprimir = document.getElementById('btn-imprimir');
-
     if (btnImprimir) {
         btnImprimir.addEventListener('click', () => {
             const contenidoTickets = document.getElementById('tickets-container').innerHTML;
-
             const ventana = window.open('', '_blank');
-
             ventana.document.write(`
                 <!DOCTYPE html>
                 <html lang="es">
@@ -130,16 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
                     <link rel="stylesheet" href="${window.location.origin}/css/main.css">
                     <style>
-                        /* Limpiamos la hoja para la impresora */
                         body { background: white !important; padding: 2rem; color: black; }
-                        /* Evitamos que una tarjeta se corte a la mitad de la hoja */
-                        .card { 
-                            border: 2px solid #ccc !important; 
-                            box-shadow: none !important; 
-                            margin-bottom: 2rem; 
-                            page-break-inside: avoid; 
-                        }
-                        /* Ocultamos cualquier mensaje de error de carga si lo hubiera */
+                        .card { border: 2px solid #ccc !important; box-shadow: none !important; margin-bottom: 2rem; page-break-inside: avoid; }
                         .text-error { display: none; }
                     </style>
                 </head>
@@ -148,20 +189,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h2 style="color: #3e52b5; font-size: 2rem; font-family: 'Inter', sans-serif;">🏆 Comprobante Oficial - FIFA 2026</h2>
                         <p style="color: #666; font-family: sans-serif;">Documento generado el ${new Date().toLocaleDateString('es-AR')}</p>
                     </div>
-                    
                     ${contenidoTickets}
-                    
                     <script>
-                        // Le damos medio segundo al navegador para que cargue la fuente y el CSS
-                        setTimeout(() => {
-                            window.print();
-                            window.close(); // Cerramos la pestaña virtual apenas termina
-                        }, 500);
+                        setTimeout(() => { window.print(); window.close(); }, 500);
                     </script>
                 </body>
                 </html>
             `);
-
             ventana.document.close();
         });
     }

@@ -13,7 +13,7 @@ import retrofit2.http.Path
 
 interface MundialAPIService {
 
-    @GET("partidos")
+    @GET("partidos?cantidad=200")
     suspend fun getPartidosLista(): List<DTOPartidosLista>
 
     @GET("partidos/{id}")
@@ -31,7 +31,7 @@ interface MundialAPIService {
         @Body request: com.error404.mundialtpi.models.ComprarTicketRequest
     ): com.error404.mundialtpi.models.TicketResponse
 
-    @GET("tickets/mis-tickets")
+    @GET("tickets/mis-tickets?cantidad=200")
     suspend fun getMisTickets(
         @retrofit2.http.Header("Authorization") token: String
     ): List<com.error404.mundialtpi.models.DTOMisTickets>

@@ -13,15 +13,15 @@ export const api = {
         try {
             const response = await window.fetch(`${API_BASE}${endpoint}`, { ...options, headers });
 
-            if (response.status === 401) {
+            if (response.status === 401 && !endpoint.includes('/auth/login')) {
                 auth.clearSession();
                 window.location.href = '/login.html?error=auth';
                 throw new Error('Sesión expirada');
             }
 
             if (!response.ok) {
-                const err = await response.json().catch(() => ({ mensaje: 'Error del servidor' }));
-                throw new Error(err.mensaje || 'Error desconocido');
+                const err = await response.json().catch(() => ({ message: 'Error del servidor' }));
+                throw new Error(err.message || err.mensaje || 'Error desconocido');
             }
 
             return response.status !== 204 ? await response.json() : true;

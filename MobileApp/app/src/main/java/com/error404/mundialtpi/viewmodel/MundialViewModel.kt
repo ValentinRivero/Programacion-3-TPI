@@ -11,8 +11,11 @@ import com.error404.mundialtpi.models.DTOPartidosLista
 import com.error404.mundialtpi.repository.MundialRepository
 import kotlinx.coroutines.launch
 import android.util.Log
+import com.error404.mundialtpi.utils.ThemePreferences
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
-class MundialViewModel(private val repository: MundialRepository) : ViewModel() {
+class MundialViewModel(private val repository: MundialRepository, private val themePreferences: ThemePreferences) : ViewModel() {
     var partidosLista by mutableStateOf<List<DTOPartidosLista>>(emptyList())
         private set
 
@@ -22,10 +25,16 @@ class MundialViewModel(private val repository: MundialRepository) : ViewModel() 
     var isLoading by mutableStateOf(false)
         private set
 
-    var isDarkMode by mutableStateOf(false)
+    val isDarkMode = themePreferences.temaOscuroFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
 
     fun toggleTheme() {
-        isDarkMode = !isDarkMode
+        viewModelScope.launch {
+            themePreferences.guardarTema(!isDarkMode.value)
+        }
     }
 
     fun cargarPartidos() {

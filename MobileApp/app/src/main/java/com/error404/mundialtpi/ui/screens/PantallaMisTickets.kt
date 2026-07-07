@@ -47,12 +47,30 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.error404.mundialtpi.ui.components.TicketCard
 import com.error404.mundialtpi.viewmodel.TicketViewModel
+import com.error404.mundialtpi.viewmodel.AuthViewModel
+import com.error404.mundialtpi.models.DestinoLogin
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaMisTickets(viewModel: TicketViewModel, navController: NavController) {
-
+fun PantallaMisTickets(
+    viewModel: TicketViewModel,
+    authViewModel: AuthViewModel,
+    navController: NavController
+) {
     var searchQuery by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    LaunchedEffect(authViewModel.isLoggedIn) {
+        if (!authViewModel.isLoggedIn) {
+            Toast.makeText(context, "Tu sesión expiró. Por favor, volvé a ingresar.", Toast.LENGTH_LONG).show()
+            navController.navigate(DestinoLogin) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.cargarMisTickets()

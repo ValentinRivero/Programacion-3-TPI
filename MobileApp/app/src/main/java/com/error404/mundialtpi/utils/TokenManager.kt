@@ -1,27 +1,43 @@
 package com.error404.mundialtpi.utils
 
 import android.content.Context
-import android.content.SharedPreferences
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-class TokenManager(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences("mundial_prefs", Context.MODE_PRIVATE)
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "mundial_prefs")
 
-    //+ nombre parametro
-    fun saveToken(token: String, nombre: String) {
-        prefs.edit()
-            .putString("jwt_token", token)
-            .putString("user_nombre", nombre) // Guardamos el nombre
-            .apply()
+class TokenManager(private val context: Context) {
+
+    companion object {
+        val TOKEN_KEY = stringPreferencesKey("jwt_token")
+        val NOMBRE_KEY = stringPreferencesKey("user_nombre")
+    }
+    suspend fun saveToken(token: String, nombre: String) {
+        context.dataStore.edit { prefs ->
+            prefs[TOKEN_KEY] = token
+            prefs[NOMBRE_KEY] = nombre
+        }
     }
 
-    fun getToken(): String? = prefs.getString("jwt_token", null)
-
-    //fun para recuperar el nombre
-    fun getNombre(): String = prefs.getString("user_nombre", "Usuario") ?: "Usuario"
-
-    fun clearToken() {
-        prefs.edit().remove("jwt_token").remove("user_nombre").apply()
+    suspend fun clearToken() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(TOKEN_KEY)
+            prefs.remove(NOMBRE_KEY)
+        }
     }
 
-    fun isLoggedIn(): Boolean = getToken() != null
+    val tokenFlow: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[TOKEN_KEY]
+    }
+
+    val nombreFlow: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[NOMBRE_KEY] ?: "Usuario"
+    }
+
+    val isLoggedInFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[TOKEN_KEY] != null
+    }
 }

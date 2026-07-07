@@ -6,7 +6,7 @@
     <title>Mis Tickets - Mundial 2026</title>
     <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/main.css?v=2.0">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
     <header class="navbar bg-primary-dark shadow-sm">
@@ -28,13 +28,13 @@
     </header>
 
     <main class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; margin-bottom: 2rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 1rem;">
-            <h2 style="color: var(--color-primary-dark); font-size: 2rem; font-weight: 800;">Mis Compras</h2>
-
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 1rem;">
+            <h2 style="color: var(--color-primary-dark); font-size: 2rem; font-weight: 800; margin: 0;">Mis Compras</h2>
             <button id="btn-imprimir" class="btn btn-secondary">
                 🖨️ Descargar PDF
             </button>
         </div>
+        <input type="text" id="search-tickets" placeholder="Buscar entrada por país o estadio..." style="width: 100%; box-sizing: border-box; padding: 1rem; margin-bottom: 1.5rem; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.3s; font-family: 'Inter', sans-serif;" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='#eee'">
 
         <div id="tickets-container" style="display: flex; flex-direction: column; gap: 1.5rem;">
             <p>Buscando tus tickets seguros...</p>
@@ -42,5 +42,7 @@
     </main>
 
     <script type="module" src="js/mis_tickets.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script type="module" src="js/partidos.js"></script>
 </body>
 </html>
