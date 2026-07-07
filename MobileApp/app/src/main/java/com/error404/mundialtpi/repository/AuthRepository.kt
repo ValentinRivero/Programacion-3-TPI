@@ -7,6 +7,7 @@ import com.error404.mundialtpi.models.RegistroResponse
 import com.error404.mundialtpi.network.MundialAPIService
 import com.error404.mundialtpi.utils.ErrorHandler
 import com.error404.mundialtpi.utils.TokenManager
+import kotlinx.coroutines.flow.Flow
 
 class AuthRepository(
     private val api: MundialAPIService,
@@ -32,16 +33,15 @@ class AuthRepository(
             Result.failure(Exception(mensajeAmigable))
         }
     }
-
-    fun isLoggedIn(): Boolean {
-        return tokenManager.isLoggedIn()
+    suspend fun guardarToken(tokenEscaneado: String, nombre: String) {
+        tokenManager.saveToken(tokenEscaneado, nombre)
     }
 
-    fun logout() {
+    fun isLoggedInFlow(): Flow<Boolean> = tokenManager.isLoggedInFlow
+
+    fun getNombreUsuarioFlow(): Flow<String> = tokenManager.nombreFlow
+
+    suspend fun logout() {
         tokenManager.clearToken()
-    }
-
-    fun getNombreUsuario(): String {
-        return tokenManager.getNombre()
     }
 }
