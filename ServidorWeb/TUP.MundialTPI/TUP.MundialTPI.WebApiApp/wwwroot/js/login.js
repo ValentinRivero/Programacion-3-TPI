@@ -24,7 +24,6 @@ btnToggle.addEventListener('click', () => {
         title.textContent = 'Crear Cuenta';
         btnSubmit.textContent = 'Registrarme';
         btnToggle.textContent = '¿Ya tenés cuenta? Iniciá sesión';
-        groupMenu.style.display = 'block';
         groupNombre.style.display = 'block';
         document.getElementById('nombre').setAttribute('required', 'true');
     }
