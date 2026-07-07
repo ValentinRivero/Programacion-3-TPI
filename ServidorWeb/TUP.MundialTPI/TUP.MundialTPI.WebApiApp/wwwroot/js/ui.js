@@ -30,7 +30,7 @@ export const ui = {
                     <span style="font-weight: 600; color: white; margin-right: 0.5rem;">Hola, ${this.escapeHTML(user.nombre)}</span>
                     
                     <button id="btn-qr-login" class="btn" style="background-color: #3498db; color: white; border: none; display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 1rem;">
-                        📱 QR
+                        QR
                     </button>
                     
                     <button id="btn-logout" class="btn btn-error" style="display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 1rem;">
